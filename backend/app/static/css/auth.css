@@ -1,0 +1,152 @@
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f2f4f7;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    padding:20px;
+}
+
+.login-card{
+    background:white;
+    width:380px;
+    max-width:100%;
+    padding:40px;
+    border-radius:8px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    text-align:center;
+}
+
+.icon-circle{
+    width:50px;
+    height:50px;
+    background:#2f4a6d;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:auto;
+    color:white;
+    font-size:20px;
+}
+
+h1{
+    margin-top:15px;
+    font-size:24px;
+    color:#2f4a6d;
+}
+
+h2{
+    font-size:18px;
+    font-weight:normal;
+    margin-bottom:25px;
+}
+
+form{
+    text-align:left;
+}
+
+label{
+    font-size:13px;
+    color:#555;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border:1px solid #dcdcdc;
+    border-radius:4px;
+    font-size:14px;
+    box-sizing:border-box;
+}
+
+.password-container{
+    position:relative;
+}
+
+.password-container i{
+    position:absolute;
+    right:10px;
+    top:12px;
+    cursor:pointer;
+    color:#777;
+}
+
+.forgot{
+    font-size:12px;
+    color:#2f4a6d;
+    display:block;
+    text-align:right;
+    margin-bottom:15px;
+    cursor:pointer;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:4px;
+    background:#2f4a6d;
+    color:white;
+    font-size:14px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#243b56;
+}
+
+.register{
+    margin-top:20px;
+    font-size:13px;
+}
+
+.register a{
+    color:#2f4a6d;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+
+/* 📱 TELEFONOS */
+@media (max-width:480px){
+
+body{
+    align-items:flex-start;
+}
+
+.login-card{
+    width:100%;
+    padding:25px;
+    margin-top:40px;
+}
+
+h1{
+    font-size:20px;
+}
+
+h2{
+    font-size:16px;
+}
+
+}
+
+
+/* 📟 TABLETS */
+@media (max-width:768px){
+
+.login-card{
+    width:90%;
+}
+
+}

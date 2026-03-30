@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ClassTrack</title>
+    <link rel="stylesheet" href="/static/css/layout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button id="toggleSidebar" class="toggle-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <span>ClassTrack</span>
+                </div>
+            </div>
+
+            <ul class="menu">
+                <li class="active">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>Horarios</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-table"></i>
+                    <span>Google Sheets</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-camera"></i>
+                    <span>Cámaras</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-users"></i>
+                    <span>Gestión</span>
+                </li>
+                <li>
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configuración</span>
+                </li>
+            </ul>
+
+            <div class="logout" id="logoutBtn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Salir</span>
+            </div>
+        </aside>
+
+        <main class="content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/siderbar.js"></script>
+</body>
+</html>

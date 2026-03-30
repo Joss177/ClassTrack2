@@ -1,0 +1,129 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #f3f4f6;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* SIDEBAR CONFIG */
+.sidebar {
+    width: 250px;
+    background: #243f63;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    overflow: hidden; /* Importante para ocultar texto al colapsar */
+    white-space: nowrap; /* Evita que el texto baje de línea */
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 5px 15px 10px;    /* Reducimos el padding izquierdo a 10px */
+    background: #203a5c;
+    height: 60px;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    min-width: 40px; /* Evita que el botón se mueva */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.no-transition,
+.no-transition * {
+    transition: none !important;
+}
+
+/* MENU */
+.menu {
+    list-style: none;
+    margin-top: 10px;
+    flex-grow: 1;
+}
+
+.menu li {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.menu li i {
+    min-width: 30px; /* Alineación de iconos */
+    font-size: 18px;
+}
+
+.menu li:hover { background: #2f5b8a; }
+.menu li.active { background: #3a628f; }
+
+/* LOGOUT */
+.logout {
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.logout i { min-width: 30px; }
+
+.logout:hover {
+    background-color: rgb(182, 55, 55);
+    cursor: pointer;
+}
+
+
+/* ESTADO COLAPSADO (PC) */
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar.collapsed span,
+.sidebar.collapsed .logo {
+    display: none; 
+}
+
+
+
+/* CONTENIDO */
+.content {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; transition: none; }
+    .sidebar.collapsed { width: 100%; }
+    .menu, .logout { display: none; }
+    
+    .sidebar.mobile-open .menu, 
+    .sidebar.mobile-open .logout { 
+        display: block; 
+    }
+}

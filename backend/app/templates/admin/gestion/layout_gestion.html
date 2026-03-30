@@ -1,0 +1,22 @@
+
+{% extends "layouts/layout.html" %}
+
+{% block content %}
+<div class="gestion-container">
+    <h1>Gestión</h1>
+
+    <div class="gestion-wrapper">
+        <div class="gestion-tabs">
+            <a href="/admin/gestion/docentes" class="{{ 'active' if subseccion == 'docentes' }}">Docentes</a>
+            <a href="/admin/gestion/materias" class="{{ 'active' if subseccion == 'materias' }}">Materias</a>
+            <a href="/admin/gestion/grupos"   class="{{ 'active' if subseccion == 'grupos' }}">Grupos</a>
+            <a href="/admin/gestion/aulas"    class="{{ 'active' if subseccion == 'aulas' }}">Aulas</a>
+            <button class="btn-agregar" id="btnAgregar">Agregar</button>
+        </div>
+
+        <div class="gestion-lista">
+            {% block lista %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

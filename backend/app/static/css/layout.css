@@ -22,14 +22,14 @@ body {
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
-    overflow: hidden; /* Importante para ocultar texto al colapsar */
-    white-space: nowrap; /* Evita que el texto baje de línea */
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .sidebar-header {
     display: flex;
     align-items: center;
-    padding: 15px 5px 15px 10px;    /* Reducimos el padding izquierdo a 10px */
+    padding: 15px 5px 15px 10px;
     background: #203a5c;
     height: 60px;
 }
@@ -40,7 +40,7 @@ body {
     color: white;
     font-size: 20px;
     cursor: pointer;
-    min-width: 40px; /* Evita que el botón se mueva */
+    min-width: 40px;
 }
 
 .logo {
@@ -64,16 +64,26 @@ body {
 }
 
 .menu li {
-    padding: 14px 20px;
     display: flex;
     align-items: center;
     cursor: pointer;
     transition: 0.2s;
 }
 
-.menu li i {
-    min-width: 30px; /* Alineación de iconos */
+.menu li a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 20px;
+}
+
+.menu li a i {
+    min-width: 30px;
     font-size: 18px;
+    color: white;
 }
 
 .menu li:hover { background: #2f5b8a; }
@@ -84,17 +94,20 @@ body {
     padding: 18px 20px;
     display: flex;
     align-items: center;
+    gap: 10px;
     cursor: pointer;
     border-top: 1px solid rgba(255,255,255,0.1);
+    color: white;
 }
 
-.logout i { min-width: 30px; }
+.logout i {
+    min-width: 30px;
+    color: white;
+}
 
 .logout:hover {
     background-color: rgb(182, 55, 55);
-    cursor: pointer;
 }
-
 
 /* ESTADO COLAPSADO (PC) */
 .sidebar.collapsed {
@@ -103,10 +116,8 @@ body {
 
 .sidebar.collapsed span,
 .sidebar.collapsed .logo {
-    display: none; 
+    display: none;
 }
-
-
 
 /* CONTENIDO */
 .content {
@@ -121,9 +132,9 @@ body {
     .sidebar { width: 100%; height: auto; transition: none; }
     .sidebar.collapsed { width: 100%; }
     .menu, .logout { display: none; }
-    
-    .sidebar.mobile-open .menu, 
-    .sidebar.mobile-open .logout { 
-        display: block; 
+
+    .sidebar.mobile-open .menu,
+    .sidebar.mobile-open .logout {
+        display: block;
     }
 }

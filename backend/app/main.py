@@ -15,7 +15,9 @@ from .database import get_db
 from .models import User
 from .schemas import LoginRequest
 
-load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+BASE_DIR = Path(__file__).resolve().parent
+
+load_dotenv(BASE_DIR.parent.parent / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM  = "HS256"
@@ -23,9 +25,8 @@ TOKEN_DAYS = 7
 
 app = FastAPI()
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 ROLES = {
     1: "Administrador",
@@ -51,27 +52,6 @@ def decode_token(token: str) -> dict | None:
     except jwt.InvalidTokenError:
         return None
 
-def get_current_user_from_cookie_or_header(request: Request) -> dict | None:
-    # Intentar desde header Authorization
-    auth = request.headers.get("Authorization", "")
-    if auth.startswith("Bearer "):
-        token = auth.split(" ", 1)[1]
-        return decode_token(token)
-    # Intentar desde cookie HttpOnly
-    token = request.cookies.get("access_token")
-    if token:
-        return decode_token(token)
-    return None
-
-def require_auth(request: Request) -> dict:
-    user = get_current_user_from_cookie_or_header(request)
-    if not user:
-        raise HTTPException(
-            status_code=302,
-            headers={"Location": "/login"}
-        )
-    return user
-
 # ─── Páginas públicas ─────────────────────────────────────────────────────────
 
 @app.get("/login")
@@ -82,19 +62,72 @@ def login_page(request: Request):
 def register_page(request: Request):
     return templates.TemplateResponse(request=request, name="register.html")
 
-# ─── Páginas protegidas ───────────────────────────────────────────────────────
+# ─── Admin ───────────────────────────────────────────────────────────────────
 
 @app.get("/admin/home")
-def admin_home(request: Request, user: dict = Depends(require_auth)):
-    return templates.TemplateResponse(request=request, name="admin/home.html")
+def admin_home(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/home.html",
+        context={"seccion": "home"})
+
+@app.get("/admin/horarios")
+def admin_horarios(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/horarios.html",
+        context={"seccion": "horarios"})
+
+@app.get("/admin/sheets")
+def admin_sheets(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/sheets.html",
+        context={"seccion": "sheets"})
+
+@app.get("/admin/camaras")
+def admin_camaras(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/camaras.html",
+        context={"seccion": "camaras"})
+
+@app.get("/admin/configuracion")
+def admin_configuracion(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/configuracion.html",
+        context={"seccion": "configuracion"})
+
+# ─── Admin / Gestión ──────────────────────────────────────────────────────────
+
+@app.get("/admin/gestion")
+def admin_gestion(request: Request):
+    return RedirectResponse(url="/admin/gestion/docentes")
+
+@app.get("/admin/gestion/docentes")
+def admin_gestion_docentes(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/gestion/docentes.html",
+        context={"seccion": "gestion", "subseccion": "docentes"})
+
+@app.get("/admin/gestion/materias")
+def admin_gestion_materias(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/gestion/materias.html",
+        context={"seccion": "gestion", "subseccion": "materias"})
+
+@app.get("/admin/gestion/grupos")
+def admin_gestion_grupos(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/gestion/grupos.html",
+        context={"seccion": "gestion", "subseccion": "grupos"})
+
+@app.get("/admin/gestion/aulas")
+def admin_gestion_aulas(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/gestion/aulas.html",
+        context={"seccion": "gestion", "subseccion": "aulas"})
+
+# ─── Lab ─────────────────────────────────────────────────────────────────────
 
 @app.get("/lab/home")
-def lab_home(request: Request, user: dict = Depends(require_auth)):
-    return templates.TemplateResponse(request=request, name="lab/home.html")
+def lab_home(request: Request):
+    return templates.TemplateResponse(request=request, name="lab/home.html",
+        context={"seccion": "home"})
+
+# ─── Docente ─────────────────────────────────────────────────────────────────
 
 @app.get("/docente/home")
-def docente_home(request: Request, user: dict = Depends(require_auth)):
-    return templates.TemplateResponse(request=request, name="docente/home.html")
+def docente_home(request: Request):
+    return templates.TemplateResponse(request=request, name="docente/home.html",
+        context={"seccion": "home"})
 
 # ─── API ──────────────────────────────────────────────────────────────────────
 
@@ -114,7 +147,7 @@ def api_login(data: LoginRequest, db: Session = Depends(get_db)):
         "nombre": user.nombre_completo,
     })
 
-    response = JSONResponse(content={
+    return JSONResponse(content={
         "ok":    True,
         "token": token,
         "usuario": {
@@ -126,26 +159,17 @@ def api_login(data: LoginRequest, db: Session = Depends(get_db)):
         }
     })
 
-    # Guardar token en cookie HttpOnly para que el servidor pueda proteger rutas
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        max_age=TOKEN_DAYS * 24 * 3600,
-        samesite="lax"
-    )
-
-    return response
-
 @app.post("/api/logout")
 def api_logout():
-    response = JSONResponse(content={"ok": True, "mensaje": "Sesión cerrada"})
-    response.delete_cookie("access_token")
-    return response
+    return JSONResponse(content={"ok": True, "mensaje": "Sesión cerrada"})
 
 @app.get("/api/me")
 def api_me(request: Request):
-    user = get_current_user_from_cookie_or_header(request)
-    if not user:
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="No autenticado")
+    token = auth.split(" ", 1)[1]
+    user = decode_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
     return JSONResponse(content={"ok": True, "usuario": user})

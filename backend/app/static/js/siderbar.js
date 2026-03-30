@@ -32,4 +32,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => logout());
     }
+
+    // ─── Menú según rol ───────────────────────────────────────────────────
+    const usuario = Session.usuario();
+    const rol = usuario?.rol;
+
+    if (rol === "Administrador" || rol === "Laboratorista") {
+        document.getElementById("menu-gestion")?.removeAttribute("style");
+    }
+    if (rol === "Administrador") {
+        document.getElementById("menu-configuracion")?.removeAttribute("style");
+    }
 });

@@ -1,0 +1,141 @@
+.gestion-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.gestion-container h1 {
+    font-size: 26px;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.gestion-wrapper {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* TABS */
+.gestion-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.gestion-tabs a {
+    text-decoration: none;
+    color: #475569;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+.gestion-tabs a:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.gestion-tabs a.active {
+    background: #243f63;
+    color: white;
+    font-weight: 600;
+    border: none;
+}
+
+.gestion-tabs a.active:hover {
+    background: #243f63;
+    color: white;
+}
+
+.btn-agregar {
+    margin-left: auto;
+    background: #243f63;
+    color: white;
+    border: none;
+    padding: 9px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-agregar:hover {
+    background: #1a2f4a;
+}
+
+/* CARDS */
+.card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: white;
+}
+
+.card-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.card-info p {
+    font-size: 14px;
+    color: #64748b;
+    margin-top: 2px;
+    line-height: 1.5;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-editar,
+.btn-eliminar {
+    flex: 1;
+    padding: 9px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    color: #1e293b;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-editar:hover   { background: #f1f5f9; }
+.btn-eliminar:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+
+/* COLOR DOT — exclusivo de materias */
+.card-color {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.color-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+

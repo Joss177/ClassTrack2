@@ -1,0 +1,14 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 16px;
+    text-align: center;
+    padding-bottom: 15vh;
+}
+
+.home-container img {
+    width: 300px;
+}

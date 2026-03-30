@@ -1,19 +1,19 @@
 // ── Helpers de sesión ────────────────────────────────────────────────────────
 const Session = {
     save(token, usuario) {
-        localStorage.setItem("ct_token",   token);
-        localStorage.setItem("ct_usuario", JSON.stringify(usuario));
+        sessionStorage.setItem("ct_token",   token);
+        sessionStorage.setItem("ct_usuario", JSON.stringify(usuario));
     },
     clear() {
-        localStorage.removeItem("ct_token");
-        localStorage.removeItem("ct_usuario");
+        sessionStorage.removeItem("ct_token");
+        sessionStorage.removeItem("ct_usuario");
     },
-    token()   { return localStorage.getItem("ct_token"); },
+    token()   { return sessionStorage.getItem("ct_token"); },
     usuario() {
-        const u = localStorage.getItem("ct_usuario");
+        const u = sessionStorage.getItem("ct_usuario");
         return u ? JSON.parse(u) : null;
     },
-    exists()  { return !!localStorage.getItem("ct_token"); }
+    exists()  { return !!sessionStorage.getItem("ct_token"); }
 };
 
 const RUTAS_ROL = {
@@ -66,7 +66,7 @@ if (loginForm) {
         btnLogin.textContent = "Ingresando...";
 
         try {
-            const res  = await fetch("/api/login", {
+            const res = await fetch("/api/login", {
                 method:  "POST",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify({ correo, password }),
@@ -91,8 +91,6 @@ if (loginForm) {
 }
 
 // ── Logout ───────────────────────────────────────────────────────────────────
-// Llama a esto desde cualquier botón de cerrar sesión:
-// logout()
 async function logout() {
     await fetch("/api/logout", { method: "POST" });
     Session.clear();

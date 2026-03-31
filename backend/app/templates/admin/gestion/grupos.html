@@ -1,27 +1,27 @@
 {% extends "admin/gestion/layout_gestion.html" %}
 
 {% block lista %}
-<div class="card" data-id="1" data-nombre="10-A" data-cantidad="30">
-    <div class="card-info">
-        <h3>10-A</h3>
-        <p>Estudiantes: 30</p>
-    </div>
-    <div class="card-actions">
-        <button class="btn-editar"><i class="fa-solid fa-pen"></i> Editar</button>
-        <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
-    </div>
-</div>
 
-<div class="card" data-id="2" data-nombre="11-B" data-cantidad="28">
+{% for grupo in grupos %}
+<div class="card"
+    data-id="{{ grupo.id }}"
+    data-nombre="{{ grupo.nombre }}"
+    data-cantidad="{{ grupo.cantidad_estudiantes }}"
+    data-url="/api/grupos">
     <div class="card-info">
-        <h3>11-B</h3>
-        <p>Estudiantes: 28</p>
+        <h3>{{ grupo.nombre }}</h3>
+        <p>Estudiantes: {{ grupo.cantidad_estudiantes }}</p>
     </div>
     <div class="card-actions">
         <button class="btn-editar"><i class="fa-solid fa-pen"></i> Editar</button>
         <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
     </div>
 </div>
+{% else %}
+<p style="color: #64748b; text-align: center; padding: 30px 0;">
+    No hay grupos registrados aún.
+</p>
+{% endfor %}
 
 <!-- MODAL AGREGAR GRUPO -->
 <div class="modal-overlay" id="modalGrupo">
@@ -71,7 +71,7 @@
     </div>
 </div>
 
-<!-- MODAL CONFIRMAR ELIMINACIÓN — compartido en toda la gestión -->
+<!-- MODAL CONFIRMAR ELIMINACIÓN -->
 <div class="modal-overlay" id="modalEliminar">
     <div class="modal">
         <div class="modal-header">
@@ -87,4 +87,6 @@
             <button class="btn-eliminar-confirmar" id="btnEliminarConfirmar">Eliminar</button>
         </div>
     </div>
+</div>
+
 {% endblock %}

@@ -1,28 +1,20 @@
 {% extends "admin/gestion/layout_gestion.html" %}
 
 {% block lista %}
-<div class="card" data-id="1" data-nombre="Matemáticas" data-codigo="MAT-101" data-color="#3b82f6">
-    <div class="card-info">
-        <h3>Matemáticas</h3>
-        <p>MAT-101</p>
-        <div class="card-color">
-            <span class="color-dot" style="background: #3b82f6;"></span>
-            <span>#3b82f6</span>
-        </div>
-    </div>
-    <div class="card-actions">
-        <button class="btn-editar"><i class="fa-solid fa-pen"></i> Editar</button>
-        <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
-    </div>
-</div>
 
-<div class="card" data-id="2" data-nombre="Física" data-codigo="FIS-101" data-color="#10b981">
+{% for materia in materias %}
+<div class="card"
+    data-id="{{ materia.id }}"
+    data-nombre="{{ materia.nombre }}"
+    data-codigo="{{ materia.codigo }}"
+    data-color="{{ materia.color or '#3b82f6' }}"
+    data-url="/api/materias">
     <div class="card-info">
-        <h3>Física</h3>
-        <p>FIS-101</p>
+        <h3>{{ materia.nombre }}</h3>
+        <p>{{ materia.codigo }}</p>
         <div class="card-color">
-            <span class="color-dot" style="background: #10b981;"></span>
-            <span>#10b981</span>
+            <span class="color-dot" style="background: {{ materia.color | default('#3b82f6') }};"></span>
+            <span>{{ materia.color | default('#3b82f6') }}</span>
         </div>
     </div>
     <div class="card-actions">
@@ -30,6 +22,11 @@
         <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
     </div>
 </div>
+{% else %}
+<p style="color: #64748b; text-align: center; padding: 30px 0;">
+    No hay materias registradas aún.
+</p>
+{% endfor %}
 
 <!-- MODAL AGREGAR MATERIA -->
 <div class="modal-overlay" id="modalMateria">
@@ -87,8 +84,7 @@
     </div>
 </div>
 
-
-<!-- MODAL CONFIRMAR ELIMINACIÓN — compartido en toda la gestión -->
+<!-- MODAL CONFIRMAR ELIMINACIÓN -->
 <div class="modal-overlay" id="modalEliminar">
     <div class="modal">
         <div class="modal-header">
@@ -105,4 +101,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}

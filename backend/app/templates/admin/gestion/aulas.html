@@ -1,10 +1,9 @@
 {% extends "admin/gestion/layout_gestion.html" %}
 
 {% block lista %}
-<div class="card">
+<div class="card" data-id="1" data-nombre="Aula 101" data-edificio="A" data-piso="1">
     <div class="card-info">
         <h3>Aula 101</h3>
-        <p>Capacidad: 35</p>
         <p>Edificio: A</p>
         <p>Piso: 1</p>
     </div>
@@ -14,10 +13,9 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card" data-id="2" data-nombre="Aula 102" data-edificio="A" data-piso="1">
     <div class="card-info">
         <h3>Aula 102</h3>
-        <p>Capacidad: 30</p>
         <p>Edificio: A</p>
         <p>Piso: 1</p>
     </div>
@@ -26,4 +24,77 @@
         <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
     </div>
 </div>
+
+<!-- MODAL AGREGAR AULA -->
+<div class="modal-overlay" id="modalAula">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Agregar Aula</h2>
+            <button class="modal-close" id="modalAulaClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="aulaNombre" placeholder="Aula 101">
+            </div>
+            <div class="form-group">
+                <label>Edificio</label>
+                <input type="text" id="aulaEdificio" placeholder="A">
+            </div>
+            <div class="form-group">
+                <label>Piso</label>
+                <input type="number" id="aulaPiso" placeholder="1">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnAulaCancelar">Cancelar</button>
+            <button class="btn-confirmar" id="btnAulaConfirmar">Agregar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR AULA -->
+<div class="modal-overlay" id="modalEditarAula">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Editar Aula</h2>
+            <button class="modal-close" id="modalEditarAulaClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="editarAulaNombre">
+            </div>
+            <div class="form-group">
+                <label>Edificio</label>
+                <input type="text" id="editarAulaEdificio">
+            </div>
+            <div class="form-group">
+                <label>Piso</label>
+                <input type="number" id="editarAulaPiso">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnEditarAulaCancelar">Cancelar</button>
+            <button class="btn-confirmar" id="btnEditarAulaGuardar">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIRMAR ELIMINACIÓN — compartido en toda la gestión -->
+<div class="modal-overlay" id="modalEliminar">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Confirmar Eliminación</h2>
+        </div>
+        <div class="modal-body">
+            <p style="color: #475569; font-size: 15px;">
+                ¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnEliminarCancelar">Cancelar</button>
+            <button class="btn-eliminar-confirmar" id="btnEliminarConfirmar">Eliminar</button>
+        </div>
+    </div>
 {% endblock %}

@@ -12,8 +12,8 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.orm import Session
 
 from .database import get_db
-from .models import User
-from .schemas import LoginRequest
+from .models import User, Docente
+from .schemas import LoginRequest, DocenteCreate, DocenteResponse
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -173,3 +173,37 @@ def api_me(request: Request):
     if not user:
         raise HTTPException(status_code=401, detail="Token inválido o expirado")
     return JSONResponse(content={"ok": True, "usuario": user})
+
+# ─── API Docentes ─────────────────────────────────────────────────────────────
+
+@app.get("/api/docentes", response_model=list[DocenteResponse])
+def get_docentes(db: Session = Depends(get_db)):
+    return db.query(Docente).all()
+
+@app.post("/api/docentes", response_model=DocenteResponse)
+def crear_docente(data: DocenteCreate, db: Session = Depends(get_db)):
+    docente = Docente(**data.model_dump())
+    db.add(docente)
+    db.commit()
+    db.refresh(docente)
+    return docente
+
+@app.delete("/api/docentes/{docente_id}")
+def eliminar_docente(docente_id: int, db: Session = Depends(get_db)):
+    docente = db.query(Docente).filter(Docente.id == docente_id).first()
+    if not docente:
+        raise HTTPException(status_code=404, detail="Docente no encontrado")
+    db.delete(docente)
+    db.commit()
+    return JSONResponse(content={"ok": True, "mensaje": "Docente eliminado"})
+
+@app.put("/api/docentes/{docente_id}", response_model=DocenteResponse)
+def editar_docente(docente_id: int, data: DocenteCreate, db: Session = Depends(get_db)):
+    docente = db.query(Docente).filter(Docente.id == docente_id).first()
+    if not docente:
+        raise HTTPException(status_code=404, detail="Docente no encontrado")
+    for key, value in data.model_dump().items():
+        setattr(docente, key, value)
+    db.commit()
+    db.refresh(docente)
+    return docente

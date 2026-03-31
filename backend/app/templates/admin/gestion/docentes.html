@@ -1,7 +1,7 @@
 {% extends "admin/gestion/layout_gestion.html" %}
 
 {% block lista %}
-<div class="card">
+<div class="card" data-id="1" data-nombre="María" data-email="maria.garcia@universidad.edu">
     <div class="card-info">
         <h3>María García</h3>
         <p>maria.garcia@universidad.edu</p>
@@ -10,6 +10,73 @@
     <div class="card-actions">
         <button class="btn-editar"><i class="fa-solid fa-pen"></i> Editar</button>
         <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
+    </div>
+</div>
+
+<!-- MODAL AGREGAR DOCENTE -->
+<div class="modal-overlay" id="modalDocente">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Agregar Docente</h2>
+            <button class="modal-close" id="modalClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="docenteNombre" placeholder="">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="docenteEmail" placeholder="">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnCancelar">Cancelar</button>
+            <button class="btn-confirmar" id="btnConfirmar">Agregar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR DOCENTE -->
+<div class="modal-overlay" id="modalEditarDocente">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Editar Docente</h2>
+            <button class="modal-close" id="modalEditarClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="editarNombre">
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="editarEmail">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnEditarCancelar">Cancelar</button>
+            <button class="btn-confirmar" id="btnGuardar">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIRMAR ELIMINACIÓN — compartido en toda la gestión -->
+<div class="modal-overlay" id="modalEliminar">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Confirmar Eliminación</h2>
+        </div>
+        <div class="modal-body">
+            <p style="color: #475569; font-size: 15px;">
+                ¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnEliminarCancelar">Cancelar</button>
+            <button class="btn-eliminar-confirmar" id="btnEliminarConfirmar">Eliminar</button>
+        </div>
     </div>
 </div>
 {% endblock %}

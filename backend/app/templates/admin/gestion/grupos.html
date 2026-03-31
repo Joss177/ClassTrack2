@@ -1,7 +1,7 @@
 {% extends "admin/gestion/layout_gestion.html" %}
 
 {% block lista %}
-<div class="card">
+<div class="card" data-id="1" data-nombre="10-A" data-cantidad="30">
     <div class="card-info">
         <h3>10-A</h3>
         <p>Estudiantes: 30</p>
@@ -12,7 +12,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card" data-id="2" data-nombre="11-B" data-cantidad="28">
     <div class="card-info">
         <h3>11-B</h3>
         <p>Estudiantes: 28</p>
@@ -22,4 +22,69 @@
         <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
     </div>
 </div>
+
+<!-- MODAL AGREGAR GRUPO -->
+<div class="modal-overlay" id="modalGrupo">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Agregar Grupo</h2>
+            <button class="modal-close" id="modalGrupoClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="grupoNombre" placeholder="TI-1A">
+            </div>
+            <div class="form-group">
+                <label>Cantidad de Estudiantes</label>
+                <input type="number" id="grupoCantidad" placeholder="30">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnGrupoCancelar">Cancelar</button>
+            <button class="btn-confirmar" id="btnGrupoConfirmar">Agregar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR GRUPO -->
+<div class="modal-overlay" id="modalEditarGrupo">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Editar Grupo</h2>
+            <button class="modal-close" id="modalEditarGrupoClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="editarGrupoNombre">
+            </div>
+            <div class="form-group">
+                <label>Cantidad de Estudiantes</label>
+                <input type="number" id="editarGrupoCantidad">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnEditarGrupoCancelar">Cancelar</button>
+            <button class="btn-confirmar" id="btnEditarGrupoGuardar">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIRMAR ELIMINACIÓN — compartido en toda la gestión -->
+<div class="modal-overlay" id="modalEliminar">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Confirmar Eliminación</h2>
+        </div>
+        <div class="modal-body">
+            <p style="color: #475569; font-size: 15px;">
+                ¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnEliminarCancelar">Cancelar</button>
+            <button class="btn-eliminar-confirmar" id="btnEliminarConfirmar">Eliminar</button>
+        </div>
+    </div>
 {% endblock %}

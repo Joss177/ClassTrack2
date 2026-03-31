@@ -1,7 +1,7 @@
 {% extends "admin/gestion/layout_gestion.html" %}
 
 {% block lista %}
-<div class="card">
+<div class="card" data-id="1" data-nombre="Matemáticas" data-codigo="MAT-101" data-color="#3b82f6">
     <div class="card-info">
         <h3>Matemáticas</h3>
         <p>MAT-101</p>
@@ -16,7 +16,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card" data-id="2" data-nombre="Física" data-codigo="FIS-101" data-color="#10b981">
     <div class="card-info">
         <h3>Física</h3>
         <p>FIS-101</p>
@@ -28,6 +28,81 @@
     <div class="card-actions">
         <button class="btn-editar"><i class="fa-solid fa-pen"></i> Editar</button>
         <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
+    </div>
+</div>
+
+<!-- MODAL AGREGAR MATERIA -->
+<div class="modal-overlay" id="modalMateria">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Agregar Materia</h2>
+            <button class="modal-close" id="modalMateriaClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="materiaNombre">
+            </div>
+            <div class="form-group">
+                <label>Código</label>
+                <input type="text" id="materiaCodigo">
+            </div>
+            <div class="form-group">
+                <label>Color</label>
+                <input type="color" id="materiaColor" value="#3b82f6">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnMateriaCancelar">Cancelar</button>
+            <button class="btn-confirmar" id="btnMateriaConfirmar">Agregar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR MATERIA -->
+<div class="modal-overlay" id="modalEditarMateria">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Editar Materia</h2>
+            <button class="modal-close" id="modalEditarMateriaClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="editarMateriaNombre">
+            </div>
+            <div class="form-group">
+                <label>Código</label>
+                <input type="text" id="editarMateriaCodigo">
+            </div>
+            <div class="form-group">
+                <label>Color</label>
+                <input type="color" id="editarMateriaColor">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnEditarMateriaCancelar">Cancelar</button>
+            <button class="btn-confirmar" id="btnEditarMateriaGuardar">Guardar</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL CONFIRMAR ELIMINACIÓN — compartido en toda la gestión -->
+<div class="modal-overlay" id="modalEliminar">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Confirmar Eliminación</h2>
+        </div>
+        <div class="modal-body">
+            <p style="color: #475569; font-size: 15px;">
+                ¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnEliminarCancelar">Cancelar</button>
+            <button class="btn-eliminar-confirmar" id="btnEliminarConfirmar">Eliminar</button>
+        </div>
     </div>
 </div>
 {% endblock %}

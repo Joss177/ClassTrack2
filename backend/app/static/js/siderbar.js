@@ -43,4 +43,40 @@ document.addEventListener("DOMContentLoaded", () => {
     if (rol === "Administrador") {
         document.getElementById("menu-configuracion")?.removeAttribute("style");
     }
+
+    // ─── Dark Mode Toggle ─────────────────────────────────────────
+    const darkToggle = document.getElementById("darkModeToggle");
+    const themeIcon  = document.getElementById("themeIcon");
+
+    function applyTheme(dark) {
+        if (dark) {
+            document.body.classList.add("dark-mode");
+            darkToggle.checked = true;
+            themeIcon.classList.remove("fa-sun", "moon");
+            themeIcon.classList.add("fa-moon", "moon");
+        } else {
+            document.body.classList.remove("dark-mode");
+            darkToggle.checked = false;
+            themeIcon.classList.remove("fa-moon", "moon");
+            themeIcon.classList.add("fa-sun");
+            themeIcon.style.color = "#f9d71c";
+        }
+    }
+
+    // Restaurar preferencia guardada
+    const savedTheme = localStorage.getItem("theme");
+    applyTheme(savedTheme === "dark");
+
+    darkToggle?.addEventListener("change", () => {
+        const isDark = darkToggle.checked;
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+
+        // Animación del ícono
+        themeIcon.style.transform = "rotate(360deg) scale(0.7)";
+        setTimeout(() => {
+            applyTheme(isDark);
+            themeIcon.style.transform = "rotate(0deg) scale(1)";
+        }, 250);
+    });
+    
 });

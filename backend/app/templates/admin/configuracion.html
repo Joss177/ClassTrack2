@@ -1,6 +1,79 @@
 {% extends "layouts/layout.html" %}
 
 {% block content %}
+<div class="config-container">
+    <h1>Configuración</h1>
 
+    <!-- Cuenta / Perfil -->
+    <div class="config-card">
+        <div class="config-card-header">
+            <i class="fa-regular fa-user"></i>
+            <h2>Cuenta / Perfil</h2>
+        </div>
+        <div class="config-card-body">
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" id="configNombre">
+            </div>
+            <div class="form-group">
+                <label>Correo Institucional</label>
+                <input type="email" id="configCorreo">
+            </div>
+            <button class="btn-cambiar-password" id="btnCambiarPassword">
+                Cambiar Contraseña
+            </button>
+        </div>
+    </div>
 
+    <!-- Versión del Sistema -->
+    <div class="config-card">
+        <div class="config-card-header">
+            <i class="fa-solid fa-circle-info"></i>
+            <h2>Versión del Sistema</h2>
+        </div>
+        <div class="config-card-body">
+            <div class="config-info-row">
+                <span>Nombre del Sistema</span>
+                <span><strong>ClassTrack</strong></span>
+            </div>
+            <div class="config-info-row">
+                <span>Versión</span>
+                <span><strong>1.0.0</strong></span>
+            </div>
+            <div class="config-info-row">
+                <span>Última actualización</span>
+                <span><strong>Febrero 2026</strong></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CAMBIAR CONTRASEÑA -->
+<div class="modal-overlay" id="modalPassword">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Cambiar Contraseña</h2>
+            <button class="modal-close" id="modalPasswordClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nueva Contraseña</label>
+                <div class="input-password">
+                    <input type="password" id="nuevaPassword">
+                    <i class="fa-regular fa-eye toggle-eye" id="toggleNueva"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Confirmar Contraseña</label>
+                <div class="input-password">
+                    <input type="password" id="confirmarPassword">
+                    <i class="fa-regular fa-eye toggle-eye" id="toggleConfirmar"></i>
+                </div>
+            </div>
+            <button class="btn-cambiar-password" id="btnConfirmarPassword">
+                Cambiar Contraseña
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}

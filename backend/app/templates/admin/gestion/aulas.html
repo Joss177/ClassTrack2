@@ -1,29 +1,29 @@
 {% extends "admin/gestion/layout_gestion.html" %}
 
 {% block lista %}
-<div class="card" data-id="1" data-nombre="Aula 101" data-edificio="A" data-piso="1">
-    <div class="card-info">
-        <h3>Aula 101</h3>
-        <p>Edificio: A</p>
-        <p>Piso: 1</p>
-    </div>
-    <div class="card-actions">
-        <button class="btn-editar"><i class="fa-solid fa-pen"></i> Editar</button>
-        <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
-    </div>
-</div>
 
-<div class="card" data-id="2" data-nombre="Aula 102" data-edificio="A" data-piso="1">
+{% for aula in aulas %}
+<div class="card"
+    data-id="{{ aula.id }}"
+    data-nombre="{{ aula.nombre }}"
+    data-edificio="{{ aula.edificio or '' }}"
+    data-piso="{{ aula.piso or 0 }}"
+    data-url="/api/aulas">
     <div class="card-info">
-        <h3>Aula 102</h3>
-        <p>Edificio: A</p>
-        <p>Piso: 1</p>
+        <h3>{{ aula.nombre }}</h3>
+        <p>Edificio: {{ aula.edificio or 'N/A' }}</p>
+        <p>Piso: {{ aula.piso or 0 }}</p>
     </div>
     <div class="card-actions">
         <button class="btn-editar"><i class="fa-solid fa-pen"></i> Editar</button>
         <button class="btn-eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
     </div>
 </div>
+{% else %}
+<p style="color: #64748b; text-align: center; padding: 30px 0;">
+    No hay aulas registradas aún.
+</p>
+{% endfor %}
 
 <!-- MODAL AGREGAR AULA -->
 <div class="modal-overlay" id="modalAula">
@@ -81,7 +81,7 @@
     </div>
 </div>
 
-<!-- MODAL CONFIRMAR ELIMINACIÓN — compartido en toda la gestión -->
+<!-- MODAL CONFIRMAR ELIMINACIÓN -->
 <div class="modal-overlay" id="modalEliminar">
     <div class="modal">
         <div class="modal-header">
@@ -97,4 +97,6 @@
             <button class="btn-eliminar-confirmar" id="btnEliminarConfirmar">Eliminar</button>
         </div>
     </div>
+</div>
+
 {% endblock %}

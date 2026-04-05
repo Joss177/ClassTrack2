@@ -636,3 +636,339 @@ body {
   .time-label { font-size: 8px; }
   .grid-cell  { min-width: 60px; }
 }
+
+/* =============================================
+   HORARIO — horario.css
+   ============================================= */
+
+/* ---------- Variables modo claro ---------- */
+:root {
+  --bg-page:        #f5f7fa;
+  --bg-table:       #ffffff;
+  --bg-header:      #ffffff;
+  --bg-hora:        #fafbfc;
+  --bg-row-alt:     #fafbfc;
+  --bg-row-hover:   #f0f4ff;
+  --bg-row-alt-hov: #eef2ff;
+  --bg-receso:      #fffbeb;
+
+  --border-main:    #e8eaf0;
+  --border-receso:  #fde68a;
+
+  --text-titulo:    #1a1a2e;
+  --text-dias:      #6b7280;
+  --text-hora:      #9ca3af;
+  --text-receso:    #b45309;
+  --text-hora-rec:  #d1a23a;
+
+  /* Tarjeta de clase */
+  --card-bg:        #2563eb;
+  --card-bg-hover:  #1d4ed8;
+  --card-clave:     #bfdbfe;
+  --card-nombre:    #ffffff;
+  --card-meta:      #93c5fd;
+  --card-aula:      #dbeafe;
+
+  /* Toggle */
+  --toggle-bg:      #e2e8f0;
+  --toggle-knob:    #ffffff;
+}
+
+/* ---------- Variables modo oscuro ---------- */
+body.dark-mode {
+  --bg-page:        #0f1117;
+  --bg-table:       #1a1d27;
+  --bg-header:      #1a1d27;
+  --bg-hora:        #13151f;
+  --bg-row-alt:     #1e2130;
+  --bg-row-hover:   #252a3d;
+  --bg-row-alt-hov: #2a3050;
+  --bg-receso:      #1f1a0e;
+
+  --border-main:    #2a2d3e;
+  --border-receso:  #78490a;
+
+  --text-titulo:    #e2e8f0;
+  --text-dias:      #8892a4;
+  --text-hora:      #5a6275;
+  --text-receso:    #d97706;
+  --text-hora-rec:  #d97706;
+
+  --card-bg:        #1e40af;
+  --card-bg-hover:  #1d3a9f;
+  --card-clave:     #93c5fd;
+  --card-nombre:    #eff6ff;
+  --card-meta:      #7aa8e8;
+  --card-aula:      #bfdbfe;
+
+  --toggle-bg:      #3b4255;
+  --toggle-knob:    #f1f5f9;
+}
+
+/* =============================================
+   BASE
+   ============================================= */
+.horario-wrapper {
+  font-family: 'Segoe UI', sans-serif;
+  padding: 24px;
+  background: var(--bg-page);
+  min-height: 100vh;
+  transition: background 0.3s ease;
+}
+
+/* ---------- Encabezado del aula ---------- */
+.aula-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.aula-titulo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-titulo);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+/* ---------- Toggle modo oscuro ---------- */
+.dark-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dark-toggle-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dias);
+  transition: color 0.3s;
+}
+
+.dark-toggle-track {
+  position: relative;
+  width: 42px;
+  height: 22px;
+  background: var(--toggle-bg);
+  border-radius: 999px;
+  transition: background 0.3s;
+}
+
+.dark-toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: var(--toggle-knob);
+  border-radius: 50%;
+  transition: transform 0.3s ease, background 0.3s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+
+body.dark-mode .dark-toggle-track {
+  background: #2563eb;
+}
+
+body.dark-mode .dark-toggle-track::after {
+  transform: translateX(20px);
+}
+
+/* =============================================
+   TABLA
+   ============================================= */
+.horario-table-container {
+  overflow-x: auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  background: var(--bg-table);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .horario-table-container {
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+
+.horario-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+/* Cabecera de días */
+.horario-table thead tr {
+  background: var(--bg-header);
+  border-bottom: 2px solid var(--border-main);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.horario-table thead th {
+  padding: 14px 10px;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-dias);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.horario-table thead th.col-hora {
+  width: 72px;
+  min-width: 72px;
+}
+
+/* Columna de horas */
+.hora-label {
+  padding: 10px 12px 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-hora);
+  text-align: right;
+  vertical-align: top;
+  white-space: nowrap;
+  width: 72px;
+  min-width: 72px;
+  border-right: 2px solid var(--border-main);
+  background: var(--bg-hora);
+  transition: color 0.3s, background 0.3s, border-color 0.3s;
+}
+
+/* Casillas normales */
+.casilla {
+  border: 1px solid var(--border-main);
+  height: 72px;
+  vertical-align: top;
+  padding: 5px;
+  cursor: default;
+  transition: background 0.15s ease, border-color 0.3s;
+}
+
+.casilla:hover {
+  background: var(--bg-row-hover);
+}
+
+.horario-table tbody tr:not(.fila-receso):nth-child(even) .casilla {
+  background: var(--bg-row-alt);
+}
+
+.horario-table tbody tr:not(.fila-receso):nth-child(even) .casilla:hover {
+  background: var(--bg-row-alt-hov);
+}
+
+/* Filas de receso */
+.fila-receso .hora-label {
+  color: var(--text-hora-rec);
+  font-weight: 700;
+}
+
+.casilla-receso {
+  background: var(--bg-receso);
+  border: 1px solid var(--border-receso);
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-receso);
+  height: 48px;
+  text-transform: uppercase;
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* =============================================
+   TARJETA DE CLASE (azul)
+   ============================================= */
+.clase-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  background: var(--card-bg);
+  border-radius: 6px;
+  padding: 6px 8px;
+  height: 100%;
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+  cursor: pointer;
+  text-align: center;
+}
+
+.clase-card:hover {
+  background: var(--card-bg-hover);
+}
+
+.clase-clave {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--card-clave);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.clase-nombre {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--card-nombre);
+  line-height: 1.2;
+}
+
+.clase-grupo {
+  font-size: 0.7rem;
+  color: var(--card-meta);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.clase-aula {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--card-aula);
+  margin-top: 1px;
+  line-height: 1;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+  .horario-wrapper {
+    padding: 12px;
+  }
+
+  .aula-titulo {
+    font-size: 1.1rem;
+  }
+
+  .hora-label {
+    font-size: 0.7rem;
+    padding: 8px 6px 0;
+    width: 52px;
+    min-width: 52px;
+  }
+
+  .horario-table thead th {
+    font-size: 0.72rem;
+    padding: 10px 6px;
+  }
+
+  .casilla {
+    height: 64px;
+  }
+
+  .clase-nombre {
+    font-size: 0.75rem;
+  }
+
+  .clase-grupo,
+  .clase-clave,
+  .clase-aula {
+    font-size: 0.62rem;
+  }
+}

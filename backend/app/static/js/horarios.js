@@ -278,3 +278,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
 });
+
+/* =============================================
+   HORARIO — horario.js
+   El modo oscuro lo maneja el layout.js global.
+   ============================================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ── Casillas (sin acción por ahora) ── */
+  const casillas = document.querySelectorAll('.casilla');
+  casillas.forEach(function (casilla) {
+    casilla.addEventListener('click', function () {
+      // Sin acción por el momento.
+      // Datos disponibles para uso futuro:
+      // const dia  = casilla.dataset.dia;
+      // const hora = casilla.dataset.hora;
+    });
+  });
+
+});

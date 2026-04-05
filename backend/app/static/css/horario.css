@@ -797,6 +797,19 @@ body.dark-mode .horario-table-container {
   width: 100%;
   border-collapse: collapse;
   min-width: 700px;
+  table-layout: fixed;
+}
+
+/* Filas normales: alto fijo uniforme */
+.horario-table tbody tr {
+  height: 72px;
+  max-height: 72px;
+}
+
+/* Filas de receso: alto fijo menor */
+.horario-table tbody tr.fila-receso {
+  height: 48px;
+  max-height: 48px;
 }
 
 /* Cabecera de días */
@@ -842,10 +855,14 @@ body.dark-mode .horario-table-container {
 .casilla {
   border: 1px solid var(--border-main);
   height: 72px;
-  vertical-align: top;
+  max-height: 72px;
+  vertical-align: middle;
   padding: 5px;
   cursor: default;
   transition: background 0.15s ease, border-color 0.3s;
+  overflow: hidden;
+  /* Evita que el contenido expanda la celda */
+  box-sizing: border-box;
 }
 
 .casilla:hover {
@@ -876,8 +893,11 @@ body.dark-mode .horario-table-container {
   letter-spacing: 0.1em;
   color: var(--text-receso);
   height: 48px;
+  max-height: 48px;
   text-transform: uppercase;
   transition: background 0.3s, border-color 0.3s, color 0.3s;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* =============================================
@@ -893,10 +913,12 @@ body.dark-mode .horario-table-container {
   border-radius: 6px;
   padding: 6px 8px;
   height: 100%;
+  max-height: 62px;
   box-sizing: border-box;
   transition: background 0.2s ease;
-  cursor: pointer;
+  cursor: grab;
   text-align: center;
+  overflow: hidden;
 }
 
 .clase-card:hover {
@@ -910,6 +932,10 @@ body.dark-mode .horario-table-container {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .clase-nombre {
@@ -917,6 +943,10 @@ body.dark-mode .horario-table-container {
   font-weight: 700;
   color: var(--card-nombre);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .clase-grupo {
@@ -924,6 +954,10 @@ body.dark-mode .horario-table-container {
   color: var(--card-meta);
   font-weight: 500;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .clase-aula {
@@ -932,6 +966,10 @@ body.dark-mode .horario-table-container {
   color: var(--card-aula);
   margin-top: 1px;
   line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 /* =============================================
@@ -958,8 +996,29 @@ body.dark-mode .horario-table-container {
     padding: 10px 6px;
   }
 
+  /* En móvil las filas bajan un poco pero se mantienen uniformes */
+  .horario-table tbody tr {
+    height: 60px;
+    max-height: 60px;
+  }
+
+  .horario-table tbody tr.fila-receso {
+    height: 38px;
+    max-height: 38px;
+  }
+
   .casilla {
-    height: 64px;
+    height: 60px;
+    max-height: 60px;
+  }
+
+  .casilla-receso {
+    height: 38px;
+    max-height: 38px;
+  }
+
+  .clase-card {
+    max-height: 50px;
   }
 
   .clase-nombre {
@@ -971,4 +1030,247 @@ body.dark-mode .horario-table-container {
   .clase-aula {
     font-size: 0.62rem;
   }
+}
+
+/* =============================================
+   DRAG & DROP
+   ============================================= */
+
+/* Card mientras se arrastra */
+.clase-card.dragging {
+  opacity: 0.45;
+  cursor: grabbing;
+}
+
+/* Cursor grab en reposo */
+.clase-card {
+  cursor: grab;
+}
+
+/* Casilla destino resaltada */
+.casilla.drag-over {
+  background: #dbeafe !important;
+  outline: 2px dashed #2563eb;
+  outline-offset: -3px;
+}
+
+body.dark-mode .casilla.drag-over {
+  background: #1e3a5f !important;
+  outline-color: #3b82f6;
+}
+
+/* =============================================
+   MODAL DETALLES DEL HORARIO
+   ============================================= */
+
+.hmodal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 40, 0.5);
+  backdrop-filter: blur(3px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.hmodal-overlay.open {
+  display: flex;
+}
+
+.hmodal {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  animation: hmodalIn 0.22s ease;
+}
+
+body.dark-mode .hmodal {
+  background: #1e2130;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+
+@keyframes hmodalIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Encabezado */
+.hmodal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.hmodal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1f36;
+  margin: 0;
+}
+
+body.dark-mode .hmodal-title { color: #e2e8f0; }
+
+.hmodal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: color 0.15s;
+  padding: 0 2px;
+}
+
+.hmodal-close:hover { color: #1a1f36; }
+body.dark-mode .hmodal-close:hover { color: #e2e8f0; }
+
+/* Bloque materia */
+.hmodal-materia {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f4f6fb;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+}
+
+body.dark-mode .hmodal-materia { background: #252a3d; }
+
+.hmodal-materia-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #2563eb;
+  flex-shrink: 0;
+}
+
+.hmodal-materia-nombre {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1f36;
+  line-height: 1.3;
+}
+
+body.dark-mode .hmodal-materia-nombre { color: #e2e8f0; }
+
+.hmodal-materia-clave {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+body.dark-mode .hmodal-materia-clave { color: #8892a4; }
+
+/* Grid de campos */
+.hmodal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+  margin-bottom: 18px;
+}
+
+.hmodal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hmodal-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+body.dark-mode .hmodal-label { color: #5a6275; }
+
+.hmodal-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1a1f36;
+}
+
+body.dark-mode .hmodal-value { color: #e2e8f0; }
+
+/* Bloque horario */
+.hmodal-horario-block {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 18px;
+}
+
+.hmodal-horario-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1a1f36;
+}
+
+body.dark-mode .hmodal-horario-value { color: #e2e8f0; }
+
+.hmodal-horario-value svg {
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+/* Divisor */
+.hmodal-divider {
+  height: 1px;
+  background: #e8eaf0;
+  margin-bottom: 18px;
+}
+
+body.dark-mode .hmodal-divider { background: #2a2d3e; }
+
+/* Acciones */
+.hmodal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.hmodal-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 7px;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s;
+}
+
+.hmodal-btn:hover  { filter: brightness(1.1); }
+.hmodal-btn:active { transform: scale(0.97); }
+
+.hmodal-btn-editar {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.hmodal-btn-eliminar {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .hmodal { padding: 18px 16px; }
+  .hmodal-grid { grid-template-columns: 1fr; gap: 12px; }
+  .hmodal-actions { flex-direction: column; }
+  .hmodal-btn { justify-content: center; }
 }

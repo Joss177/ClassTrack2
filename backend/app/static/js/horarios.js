@@ -298,3 +298,182 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 });
+
+
+/* =============================================
+   HORARIO — horario.js
+   ============================================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ══════════════════════════════════════════
+     MODAL DETALLES
+  ══════════════════════════════════════════ */
+  const overlay       = document.getElementById('hmodalOverlay');
+  const btnClose      = document.getElementById('hmodalClose');
+  const btnEliminar   = document.getElementById('hmodalEliminar');
+  const btnEditar     = document.getElementById('hmodalEditar');
+
+  // Elementos del modal
+  const elNombre      = document.getElementById('hmodalNombre');
+  const elClave       = document.getElementById('hmodalClave');
+  const elDocente     = document.getElementById('hmodalDocente');
+  const elGrupo       = document.getElementById('hmodalGrupo');
+  const elAula        = document.getElementById('hmodalAula');
+  const elDia         = document.getElementById('hmodalDia');
+  const elHorario     = document.getElementById('hmodalHorario');
+
+  // Card actualmente abierta en el modal
+  let cardActiva = null;
+
+  function abrirModal(card, casilla) {
+    cardActiva = card;
+
+    // Leer datos del card
+    const clave   = card.querySelector('.clase-clave')?.textContent.trim()  || '—';
+    const nombre  = card.querySelector('.clase-nombre')?.textContent.trim() || '—';
+    const grupo   = card.querySelector('.clase-grupo')?.textContent.trim()  || '—';
+    const aula    = card.querySelector('.clase-aula')?.textContent.trim()   || '—';
+
+    // Leer datos de la casilla (data attributes)
+    const dia     = casilla?.dataset.dia   || '—';
+    const hora    = casilla?.dataset.hora  || '—';
+
+    // Separar grupo y docente si vienen juntos con "•"
+    // Ej: "10-A • María González"
+    let grupoTexto   = grupo;
+    let docenteTexto = '—';
+    if (grupo.includes('•')) {
+      const partes = grupo.split('•');
+      grupoTexto   = partes[0].trim();
+      docenteTexto = partes[1].trim();
+    }
+
+    // Capitalizar día
+    const diaCapital = dia.charAt(0).toUpperCase() + dia.slice(1);
+
+    // Poblar modal
+    elNombre.textContent  = nombre;
+    elClave.textContent   = clave;
+    elDocente.textContent = docenteTexto;
+    elGrupo.textContent   = grupoTexto;
+    elAula.textContent    = aula;
+    elDia.textContent     = diaCapital;
+    elHorario.textContent = hora.replace('-', ' - ');
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function cerrarModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    cardActiva = null;
+  }
+
+  // Cerrar con botón X
+  btnClose?.addEventListener('click', cerrarModal);
+
+  // Cerrar al hacer clic en el overlay (fuera del modal)
+  overlay?.addEventListener('click', function (e) {
+    if (e.target === overlay) cerrarModal();
+  });
+
+  // Cerrar con Escape
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') cerrarModal();
+  });
+
+  // Botón Eliminar
+  btnEliminar?.addEventListener('click', function () {
+    if (!cardActiva) return;
+    const casilla = cardActiva.closest('.casilla');
+    cardActiva.remove();
+    cerrarModal();
+    // Aquí puedes agregar lógica adicional: llamada a API, etc.
+  });
+
+  // Botón Editar (placeholder — conectar con tu lógica)
+  btnEditar?.addEventListener('click', function () {
+    cerrarModal();
+    // Aquí puedes abrir tu modal de edición, pasar datos, etc.
+  });
+
+  /* ══════════════════════════════════════════
+     ACTIVAR CLICK EN CARDS (modal)
+     y DRAG & DROP
+  ══════════════════════════════════════════ */
+  let origenCasilla = null;
+  let isDragging    = false;
+
+  function activarCard(card) {
+    card.setAttribute('draggable', 'true');
+
+    // Click → abrir modal (solo si no fue un drag)
+    card.addEventListener('click', function (e) {
+      if (isDragging) return;
+      e.stopPropagation();
+      const casilla = card.closest('.casilla');
+      abrirModal(card, casilla);
+    });
+
+    // Drag start
+    card.addEventListener('dragstart', function (e) {
+      isDragging    = true;
+      origenCasilla = card.closest('.casilla');
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => card.classList.add('dragging'), 0);
+    });
+
+    // Drag end
+    card.addEventListener('dragend', function () {
+      card.classList.remove('dragging');
+      origenCasilla = null;
+      document.querySelectorAll('.casilla').forEach(c => c.classList.remove('drag-over'));
+      // Pequeño delay para que el click no se dispare después del drop
+      setTimeout(() => { isDragging = false; }, 50);
+    });
+  }
+
+  // Inicializar cards existentes
+  document.querySelectorAll('.clase-card').forEach(activarCard);
+
+  /* ══════════════════════════════════════════
+     DRAG & DROP — casillas destino
+  ══════════════════════════════════════════ */
+  document.querySelectorAll('.casilla').forEach(function (casilla) {
+
+    casilla.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      casilla.classList.add('drag-over');
+    });
+
+    casilla.addEventListener('dragleave', function () {
+      casilla.classList.remove('drag-over');
+    });
+
+    casilla.addEventListener('drop', function (e) {
+      e.preventDefault();
+      casilla.classList.remove('drag-over');
+
+      if (!origenCasilla || origenCasilla === casilla) return;
+
+      const cardOrigen  = origenCasilla.querySelector('.clase-card');
+      const cardDestino = casilla.querySelector('.clase-card');
+
+      if (!cardOrigen) return;
+
+      if (cardDestino) {
+        origenCasilla.appendChild(cardDestino);
+        casilla.appendChild(cardOrigen);
+        activarCard(cardDestino);
+      } else {
+        casilla.appendChild(cardOrigen);
+      }
+
+      activarCard(cardOrigen);
+    });
+  });
+
+});

@@ -27,6 +27,7 @@
             <div class="clase-card">
               <span class="clase-clave">MAT-101</span>
               <span class="clase-grupo">10-A</span>
+
             </div>
           </td>
           <td class="casilla" data-dia="martes"     data-hora="07:00-07:50"></td>
@@ -159,6 +160,82 @@
 
       </tbody>
     </table>
+  </div>
+
+  <!-- ══ MODAL DETALLES ══ -->
+  <div class="hmodal-overlay" id="hmodalOverlay">
+    <div class="hmodal" role="dialog" aria-modal="true" aria-labelledby="hmodalTitle">
+
+      <div class="hmodal-header">
+        <h3 class="hmodal-title" id="hmodalTitle">Detalles del Horario</h3>
+        <button class="hmodal-close" id="hmodalClose" aria-label="Cerrar">&times;</button>
+      </div>
+
+      <!-- Bloque materia -->
+      <div class="hmodal-materia">
+        <div class="hmodal-materia-color"></div>
+        <div>
+          <div class="hmodal-materia-nombre" id="hmodalNombre"></div>
+          <div class="hmodal-materia-clave"  id="hmodalClave"></div>
+        </div>
+      </div>
+
+      <!-- Grid de datos -->
+      <div class="hmodal-grid">
+        <div class="hmodal-field">
+          <span class="hmodal-label">Docente</span>
+          <span class="hmodal-value" id="hmodalDocente"></span>
+        </div>
+        <div class="hmodal-field">
+          <span class="hmodal-label">Grupo</span>
+          <span class="hmodal-value" id="hmodalGrupo"></span>
+        </div>
+        <div class="hmodal-field">
+          <span class="hmodal-label">Aula</span>
+          <span class="hmodal-value" id="hmodalAula"></span>
+        </div>
+        <div class="hmodal-field">
+          <span class="hmodal-label">Día</span>
+          <span class="hmodal-value" id="hmodalDia"></span>
+        </div>
+      </div>
+
+      <!-- Horario -->
+      <div class="hmodal-horario-block">
+        <span class="hmodal-label">Horario</span>
+        <div class="hmodal-horario-value">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span id="hmodalHorario"></span>
+        </div>
+      </div>
+
+      <div class="hmodal-divider"></div>
+
+      <!-- Acciones -->
+      <div class="hmodal-actions">
+        <button class="hmodal-btn hmodal-btn-editar" id="hmodalEditar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Editar
+        </button>
+        <button class="hmodal-btn hmodal-btn-eliminar" id="hmodalEliminar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v6"/><path d="M14 11v6"/>
+            <path d="M9 6V4h6v2"/>
+          </svg>
+          Eliminar
+        </button>
+      </div>
+
+    </div>
   </div>
 </div>
 {% endblock %}

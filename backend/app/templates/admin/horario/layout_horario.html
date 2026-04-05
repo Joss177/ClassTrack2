@@ -1,0 +1,110 @@
+{% extends "layouts/layout.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/static/css/horario.css">
+
+<div class="gestion-container">
+  <h1>Horario</h1>
+
+  <div class="gestion-wrapper">
+
+    <!-- Tabs + Botones -->
+    <div class="gestion-tabs">
+      <a href="/admin/horarios/docentes" class="{{ 'active' if subseccion == 'horario_docentes' }}">Docentes</a>
+      <a href="/admin/horarios/grupos"   class="{{ 'active' if subseccion == 'horario_grupos' }}">Grupos</a>
+      <a href="/admin/horarios/aulas"    class="{{ 'active' if subseccion == 'horario_aulas' }}">Aulas</a>
+
+      <!-- Botones juntos a la derecha -->
+      <div class="horario-btn-group">
+        <button class="btn-secundario" id="btnSubirHorario">📄 Subir Horario</button>
+        <button class="btn-agregar"    id="btnAgregarClase">+ Agregar Clase</button>
+      </div>
+    </div>
+
+    <!-- Contenido de cada sub-vista -->
+    <div class="gestion-lista">
+      {% block lista %}{% endblock %}
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     Modal — Agregar Horario
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalHorario">
+  <div class="modal">
+
+    <div class="modal-header">
+      <span class="modal-title">Agregar Horario</span>
+      <button class="modal-close" id="modalHorarioClose" aria-label="Cerrar">✕</button>
+    </div>
+
+    <!-- Docente -->
+    <div class="form-group">
+      <label class="form-label" for="h-docente">Docente</label>
+      <select class="form-select" id="h-docente">
+        <option value="" disabled selected>Seleccionar docente</option>
+      </select>
+    </div>
+
+    <!-- Materia -->
+    <div class="form-group">
+      <label class="form-label" for="h-materia">Materia</label>
+      <select class="form-select" id="h-materia">
+        <option value="" disabled selected>Seleccionar materia</option>
+      </select>
+    </div>
+
+    <!-- Grupo -->
+    <div class="form-group">
+      <label class="form-label" for="h-grupo">Grupo</label>
+      <select class="form-select" id="h-grupo">
+        <option value="" disabled selected>Seleccionar grupo</option>
+      </select>
+    </div>
+
+    <!-- Aula -->
+    <div class="form-group">
+      <label class="form-label" for="h-aula">Aula</label>
+      <select class="form-select" id="h-aula">
+        <option value="" disabled selected>Seleccionar aula</option>
+      </select>
+    </div>
+
+    <!-- Día -->
+    <div class="form-group">
+      <label class="form-label" for="h-dia">Día de la semana</label>
+      <select class="form-select" id="h-dia">
+        <option value="lunes">Lunes</option>
+        <option value="martes">Martes</option>
+        <option value="miercoles">Miércoles</option>
+        <option value="jueves">Jueves</option>
+        <option value="viernes">Viernes</option>
+      </select>
+    </div>
+
+    <!-- Hora Inicio + Hora Fin -->
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="h-inicio">Hora Inicio</label>
+        <select class="form-select" id="h-inicio"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="h-fin">Hora Fin</label>
+        <select class="form-select" id="h-fin"></select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-cancel" id="modalHorarioCancel">Cancelar</button>
+      <button class="btn-save"   id="modalHorarioSave">Guardar</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="/static/js/horario.js"></script>
+
+{% endblock %}

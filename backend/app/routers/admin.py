@@ -27,8 +27,29 @@ def admin_home(request: Request):
 
 @router.get("/admin/horarios")
 def admin_horarios(request: Request):
-    return templates.TemplateResponse(request=request, name="admin/horarios.html",
+    return templates.TemplateResponse(request=request, name="admin/horario/layout_horario.html",
         context={"seccion": "horarios"})
+
+# Agrega estas 4 rutas en admin.py
+
+@router.get("/admin/horarios")
+def admin_horarios(request: Request):
+    return RedirectResponse(url="/admin/horarios/aulas")
+
+@router.get("/admin/horarios/aulas")
+def admin_horario_aulas(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/horario/horario_aula.html",
+        context={"seccion": "horarios", "subseccion": "horario_aulas"})
+
+@router.get("/admin/horarios/docentes")
+def admin_horario_docentes(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/horario/horario_docente.html",
+        context={"seccion": "horarios", "subseccion": "horario_docentes"})
+
+@router.get("/admin/horarios/grupos")
+def admin_horario_grupos(request: Request):
+    return templates.TemplateResponse(request=request, name="admin/horario/horario_grupo.html",
+        context={"seccion": "horarios", "subseccion": "horario_grupos"})
 
 @router.get("/admin/sheets")
 def admin_sheets(request: Request):

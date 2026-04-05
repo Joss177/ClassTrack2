@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from .routers import admin, auth, lab, docente
+from .routers import admin, auth, lab, docente, horario
 
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR.parent.parent / ".env")
@@ -32,3 +32,4 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(lab.router)
 app.include_router(docente.router)
+app.include_router(horario.router)

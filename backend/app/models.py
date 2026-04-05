@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, TIMESTAMP, Text, Boolean, text
+from sqlalchemy import Column, Integer, SmallInteger, String, ForeignKey, TIMESTAMP, Text, Boolean, text
 from .database import Base
 
 class User(Base):
@@ -54,3 +54,17 @@ class Grupo(Base):
     cantidad_estudiantes = Column(Integer, default=0)
     created              = Column(TIMESTAMP, server_default=text('now()'))
     modified             = Column(TIMESTAMP, server_default=text('now()'))
+
+class Horario(Base):
+    __tablename__ = "horarios"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    docente_id  = Column(Integer, ForeignKey("docentes.id"), nullable=True)
+    materia_id  = Column(Integer, ForeignKey("materias.id"), nullable=True)
+    grupo_id    = Column(Integer, ForeignKey("grupos.id"),   nullable=True)
+    aula_id     = Column(Integer, ForeignKey("aulas.id"),    nullable=True)
+    dia_semana  = Column(SmallInteger, nullable=False)        # 1=Lunes ... 5=Viernes
+    hora_inicio = Column(String(5), nullable=False)
+    hora_fin    = Column(String(5), nullable=False)
+    created     = Column(TIMESTAMP, server_default=text('now()'))
+    modified    = Column(TIMESTAMP, server_default=text('now()'))

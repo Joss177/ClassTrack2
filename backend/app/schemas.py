@@ -79,3 +79,25 @@ class GrupoResponse(GrupoBase):
 
     class Config:
         from_attributes = True
+
+# ─── Horarios ─────────────────────────────────────────────────────────────────
+
+class HorarioBase(BaseModel):
+    docente_id:  Optional[int] = None
+    materia_id:  Optional[int] = None
+    grupo_id:    Optional[int] = None
+    aula_id:     Optional[int] = None
+    dia_semana:  int                    # 1=Lunes ... 5=Viernes
+    hora_inicio: str                    # formato "HH:MM"
+    hora_fin:    str                    # formato "HH:MM"
+
+class HorarioCreate(HorarioBase):
+    pass
+
+class HorarioResponse(HorarioBase):
+    id:       int
+    created:  Optional[datetime] = None
+    modified: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True

@@ -29,7 +29,7 @@ def register_page(request: Request):
 # ─── Routers ──────────────────────────────────────────────────────────────────
 
 app.include_router(auth.router)
-app.include_router(admin.router)
+app.include_router(horario.router) 
+app.include_router(admin.router)    
 app.include_router(lab.router)
 app.include_router(docente.router)
-app.include_router(horario.router)

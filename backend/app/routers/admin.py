@@ -31,19 +31,37 @@ def admin_horarios(request: Request):
     return RedirectResponse(url="/admin/horarios/aulas")
 
 @router.get("/admin/horarios/aulas")
-def admin_horario_aulas(request: Request):
+def admin_horario_aulas(request: Request, db: Session = Depends(get_db)):
+    aulas = db.query(Aula).order_by(Aula.nombre).all()
     return templates.TemplateResponse(request=request, name="admin/horario/horario_aula.html",
-        context={"seccion": "horarios", "subseccion": "horario_aulas"})
+        context={
+            "seccion":    "horarios",
+            "subseccion": "horario_aulas",
+            "entidades":  [{"id": a.id, "nombre": a.nombre} for a in aulas],
+            "modo":       "aula",
+        })
 
 @router.get("/admin/horarios/docentes")
-def admin_horario_docentes(request: Request):
+def admin_horario_docentes(request: Request, db: Session = Depends(get_db)):
+    docentes = db.query(Docente).order_by(Docente.nombre).all()
     return templates.TemplateResponse(request=request, name="admin/horario/horario_docente.html",
-        context={"seccion": "horarios", "subseccion": "horario_docentes"})
+        context={
+            "seccion":    "horarios",
+            "subseccion": "horario_docentes",
+            "entidades":  [{"id": d.id, "nombre": f"{d.nombre} {d.apellido or ''}".strip()} for d in docentes],
+            "modo":       "docente",
+        })
 
 @router.get("/admin/horarios/grupos")
-def admin_horario_grupos(request: Request):
+def admin_horario_grupos(request: Request, db: Session = Depends(get_db)):
+    grupos = db.query(Grupo).order_by(Grupo.nombre).all()
     return templates.TemplateResponse(request=request, name="admin/horario/horario_grupo.html",
-        context={"seccion": "horarios", "subseccion": "horario_grupos"})
+        context={
+            "seccion":    "horarios",
+            "subseccion": "horario_grupos",
+            "entidades":  [{"id": g.id, "nombre": g.nombre} for g in grupos],
+            "modo":       "grupo",
+        })
 
 @router.get("/admin/sheets")
 def admin_sheets(request: Request):
@@ -225,6 +243,8 @@ def eliminar_aula(id: int, db: Session = Depends(get_db)):
     return JSONResponse(content={"ok": True})
 
 # ─── API Horarios ─────────────────────────────────────────────────────────────
+# NOTA: los endpoints filtrados /aula/{id}, /docente/{id}, /grupo/{id}
+# están en routers/horario.py y deben registrarse ANTES que /{id}
 
 @router.get("/api/horarios", response_model=list[HorarioResponse])
 def get_horarios(db: Session = Depends(get_db)):

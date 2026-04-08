@@ -12,3 +12,330 @@
 .home-container img {
     width: 300px;
 }
+
+.chatbot-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: clamp(48px, 6vw, 70px);
+    height: clamp(48px, 6vw, 70px);
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 9999;
+    transition: transform 0.2s;
+}
+
+.chatbot-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.chatbot-btn:hover {
+    transform: scale(1.1);
+}
+
+.chatbot-btn:active {
+    transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .chatbot-btn {
+        bottom: 1.2rem;
+        right: 1.2rem;
+    }
+}
+
+/* === Botón chatbot === */
+.chatbot-btn {
+    position: fixed !important;
+    bottom: 2rem;
+    right: 2rem;
+    width: clamp(56px, 5vw, 72px);
+    height: clamp(56px, 5vw, 72px);
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 99999 !important;
+    transition: transform 0.2s;
+    display: block;
+}
+
+.chatbot-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 50%;
+}
+
+.chatbot-btn:hover { transform: scale(1.1); }
+.chatbot-btn:active { transform: scale(0.95); }
+
+/* === Ventana de chat === */
+.chat-window {
+    position: fixed;
+    bottom: 7rem;
+    right: 2rem;
+    width: clamp(280px, 30vw, 360px);
+    height: clamp(400px, 55vh, 520px);
+    background: #1e1e2e;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    z-index: 99998;
+    overflow: hidden;
+    border: 1px solid #2e2e42;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(16px) scale(0.97);
+    transition: opacity 0.25s, transform 0.25s;
+}
+
+.chat-window.open {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0) scale(1);
+}
+
+/* Header */
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #16213e;
+    border-bottom: 1px solid #2e2e42;
+    flex-shrink: 0;
+}
+
+.chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #1a56db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.chat-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+.chat-status {
+    font-size: 11px;
+    color: #4ade80;
+    margin: 0;
+}
+
+.chat-close {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.chat-close:hover {
+    background: #2e2e42;
+    color: #ffffff;
+}
+
+/* Mensajes */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #2e2e42 transparent;
+}
+
+.chat-msg {
+    display: flex;
+    max-width: 80%;
+}
+
+.chat-msg span {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.chat-msg.bot {
+    align-self: flex-start;
+}
+
+.chat-msg.bot span {
+    background: #2e2e42;
+    color: #e5e7eb;
+    border-bottom-left-radius: 4px;
+}
+
+.chat-msg.user {
+    align-self: flex-end;
+}
+
+.chat-msg.user span {
+    background: #1a56db;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+/* Input */
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid #2e2e42;
+    background: #16213e;
+    flex-shrink: 0;
+}
+
+.chat-input-area input {
+    flex: 1;
+    background: #2e2e42;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #ffffff;
+    outline: none;
+}
+
+.chat-input-area input::placeholder {
+    color: #6b7280;
+}
+
+.chat-input-area input:focus {
+    background: #3a3a52;
+}
+
+.chat-input-area button {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #1a56db;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.chat-input-area button:hover { background: #1648c0; }
+.chat-input-area button:active { transform: scale(0.95); }
+
+/* Responsive */
+@media (max-width: 480px) {
+    .chat-window {
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 60vh;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .chatbot-btn {
+        bottom: 1.2rem;
+        right: 1.2rem;
+    }
+}
+
+/* ── Agregar al final de home.css ──────────────────────────────────────────── */
+
+/* Contenedor de opciones rápidas */
+.quick-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 12px 4px;
+}
+
+/* Botones de opción rápida */
+.quick-option-btn {
+    background: #ffffff;
+    border: 1.5px solid #3b82f6;
+    color: #3b82f6;
+    border-radius: 20px;
+    padding: 9px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+    line-height: 1.3;
+}
+
+.quick-option-btn:hover {
+    background: #3b82f6;
+    color: #ffffff;
+    transform: translateX(4px);
+}
+
+/* Indicador de escritura (tres puntos animados) */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 16px 10px;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: #94a3b8;
+    border-radius: 50%;
+    animation: ct-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes ct-bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40%           { transform: translateY(-7px); }
+}
+
+/* Mensajes de error del bot */
+.chat-msg.bot.error span {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
+
+/* Negritas dentro de mensajes del bot */
+.chat-msg.bot span strong {
+    font-weight: 700;
+}

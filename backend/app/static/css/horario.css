@@ -901,7 +901,7 @@ body.dark-mode .horario-table-container {
 }
 
 /* =============================================
-   TARJETA DE CLASE (azul)
+   TARJETA DE CLASE
    ============================================= */
 .clase-card {
   display: flex;
@@ -909,7 +909,6 @@ body.dark-mode .horario-table-container {
   justify-content: center;
   align-items: center;
   gap: 2px;
-  background: var(--card-bg);
   border-radius: 6px;
   padding: 6px 8px;
   height: 100%;
@@ -1274,3 +1273,4 @@ body.dark-mode .hmodal-divider { background: #2a2d3e; }
   .hmodal-actions { flex-direction: column; }
   .hmodal-btn { justify-content: center; }
 }
+

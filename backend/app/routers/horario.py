@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from ..services.horario_automatic import procesar_pdf
+
 from ..database import get_db
 from ..models import Horario, Docente, Materia, Grupo, Aula
 from ..schemas import HorarioCreate, HorarioResponse
@@ -115,3 +118,148 @@ def eliminar_horario(id: int, db: Session = Depends(get_db)):
     db.delete(horario)
     db.commit()
     return JSONResponse(content={"ok": True})
+
+
+
+
+
+@router.post("/api/horarios/subir-pdf")
+async def subir_pdf_horario(
+    archivo: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    if not archivo.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Solo se aceptan archivos PDF")
+
+    contenido = await archivo.read()
+    datos = procesar_pdf(contenido)
+
+    COLORES = [
+        "#f87171", "#34d399", "#fbbf24", "#60a5fa",
+        "#a78bfa", "#f472b6", "#22d3ee", "#0ea5e9",
+        "#10b981", "#ef4444", "#d97706", "#4b5563",
+        "#16a34a", "#3b82f6", "#e879f9", "#f97316",
+    ]
+
+    # ── Pre-calcular mapa de materias con colores en orden de aparición ──
+    mapa_materias_colores = {}
+    idx_color = 0
+    for aula in datos["aulas"]:
+        for h in aula["horarios"]:
+            cod = h["codigo"]
+            if cod not in mapa_materias_colores:
+                mapa_materias_colores[cod] = {
+                    "nombre": h["materia"],
+                    "color":  COLORES[idx_color % len(COLORES)],
+                    "docente": h["docente"],
+                }
+                idx_color += 1
+
+    insertados = 0
+    creados    = {"aulas": 0, "grupos": 0, "materias": 0, "docentes": 0}
+
+    cache_aulas    = {}
+    cache_grupos   = {}
+    cache_materias = {}
+    cache_docentes = {}
+
+    def get_or_create_aula(nombre):
+        if nombre in cache_aulas:
+            return cache_aulas[nombre]
+        obj = db.query(Aula).filter(Aula.nombre == nombre).first()
+        if not obj:
+            obj = Aula(nombre=nombre)
+            db.add(obj)
+            db.flush()
+            creados["aulas"] += 1
+        cache_aulas[nombre] = obj
+        return obj
+
+    def get_or_create_grupo(nombre):
+        if nombre in cache_grupos:
+            return cache_grupos[nombre]
+        obj = db.query(Grupo).filter(Grupo.nombre == nombre).first()
+        if not obj:
+            obj = Grupo(nombre=nombre)
+            db.add(obj)
+            db.flush()
+            creados["grupos"] += 1
+        cache_grupos[nombre] = obj
+        return obj
+
+    def get_or_create_materia(codigo):
+        if codigo in cache_materias:
+            return cache_materias[codigo]
+        obj = db.query(Materia).filter(Materia.codigo == codigo).first()
+        if not obj:
+            info  = mapa_materias_colores.get(codigo, {})
+            obj   = Materia(
+                codigo  = codigo,
+                nombre  = info.get("nombre", "MATERIA NO REGISTRADA"),
+                color   = info.get("color",  "#3b82f6"),
+            )
+            db.add(obj)
+            db.flush()
+            creados["materias"] += 1
+        cache_materias[codigo] = obj
+        return obj
+
+    def get_or_create_docente(nombre_completo):
+        if not nombre_completo or nombre_completo == "Sin asignar":
+            return None
+        if nombre_completo in cache_docentes:
+            return cache_docentes[nombre_completo]
+        obj = (
+            db.query(Docente)
+            .filter(
+                (Docente.nombre + " " + Docente.apellido).ilike(f"%{nombre_completo}%")
+            )
+            .first()
+        )
+        if not obj:
+            partes   = nombre_completo.strip().split()
+            apellido = " ".join(partes[-2:]) if len(partes) >= 2 else ""
+            nombre   = " ".join(partes[:-2]) if len(partes) >= 2 else nombre_completo
+            obj      = Docente(nombre=nombre, apellido=apellido)
+            db.add(obj)
+            db.flush()
+            creados["docentes"] += 1
+        cache_docentes[nombre_completo] = obj
+        return obj
+
+    for aula_data in datos["aulas"]:
+        aula = get_or_create_aula(aula_data["nombre"])
+
+        for h in aula_data["horarios"]:
+            grupo   = get_or_create_grupo(h["grupo"])
+            materia = get_or_create_materia(h["codigo"])
+            docente = get_or_create_docente(h.get("docente", ""))
+
+            existe = db.query(Horario).filter(
+                Horario.aula_id     == aula.id,
+                Horario.dia_semana  == h["dia_semana"],
+                Horario.hora_inicio == h["hora_inicio"],
+            ).first()
+
+            if existe:
+                continue
+
+            nuevo = Horario(
+                dia_semana  = h["dia_semana"],
+                hora_inicio = h["hora_inicio"],
+                hora_fin    = h["hora_fin"],
+                grupo_id    = grupo.id,
+                materia_id  = materia.id,
+                aula_id     = aula.id,
+                docente_id  = docente.id if docente else None,
+            )
+            db.add(nuevo)
+            insertados += 1
+
+    db.commit()
+
+    return JSONResponse(content={
+        "ok":         True,
+        "insertados": insertados,
+        "creados":    creados,
+    })

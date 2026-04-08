@@ -1,13 +1,5 @@
 /**
  * horarios.js — Módulo de Horarios dinámico
- *
- * Flujo:
- *  1. Lee data-modo del .horario-wrapper ("aula" | "docente" | "grupo")
- *  2. El usuario elige una entidad en el <select id="selectorEntidad">
- *  3. Se llama GET /api/horarios/{modo}/{id} y se renderizan las cards
- *  4. Modal "Agregar" → POST o PUT → refresca
- *  5. Modal "Detalles" → Eliminar (DELETE) o Editar (pre-llena modal agregar)
- *  6. Drag & drop → PUT para persistir el nuevo slot
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -39,13 +31,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   const SLOTS_ACTIVOS = TIME_SLOTS.filter(s => !s.receso);
   const DIAS_LABEL    = { 1:'Lunes', 2:'Martes', 3:'Miércoles', 4:'Jueves', 5:'Viernes' };
 
+  // ── Helpers para parsear data-hora="HH:MM-HH:MM" de forma segura ──
+  // El formato es "07:00-07:50", que contiene '-' también en las horas.
+  // La única forma segura es buscar el '-' que está entre los dos tiempos,
+  // es decir el que va después de los primeros 5 caracteres.
+  function parsearDataHora(dataHora) {
+    // "07:00-07:50"  →  inicio="07:00", fin="07:50"
+    const separador = dataHora.indexOf('-', 5);   // buscar '-' a partir del índice 5
+    if (separador === -1) return { inicio: dataHora, fin: dataHora };
+    return {
+      inicio: dataHora.slice(0, separador),
+      fin:    dataHora.slice(separador + 1),
+    };
+  }
+
   /* ══════════════════════════════════════════════════════════
      DETECCIÓN DE MODO
   ══════════════════════════════════════════════════════════ */
 
   const wrapper   = document.querySelector('.horario-wrapper');
-  const modo      = wrapper?.dataset.modo || null;   // 'aula' | 'docente' | 'grupo'
-  let   entidadId = null;                            // se actualiza al elegir en el select
+  const modo      = wrapper?.dataset.modo || null;
+  let   entidadId = null;
 
   /* ══════════════════════════════════════════════════════════
      SELECTOR DE ENTIDAD
@@ -55,15 +61,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tituloHorario   = document.getElementById('tituloHorario');
 
   selectorEntidad?.addEventListener('change', async () => {
-      entidadId = selectorEntidad.value;
-      if (wrapper) wrapper.dataset.entidadId = entidadId;
-      const nombre = selectorEntidad.options[selectorEntidad.selectedIndex].text;
-      if (tituloHorario) tituloHorario.textContent = nombre;
-
-      // Guardar selección
-      localStorage.setItem(`horario_selector_${modo}`, entidadId);
-
-      await cargarYRenderizarHorarios();
+    entidadId = selectorEntidad.value;
+    if (wrapper) wrapper.dataset.entidadId = entidadId;
+    const nombre = selectorEntidad.options[selectorEntidad.selectedIndex].text;
+    if (tituloHorario) tituloHorario.textContent = nombre;
+    localStorage.setItem(`horario_selector_${modo}`, entidadId);
+    await cargarYRenderizarHorarios();
   });
 
   /* ══════════════════════════════════════════════════════════
@@ -98,7 +101,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const card = document.createElement('div');
     card.className = 'clase-card';
 
-    // Todos los datos en dataset para los modales
     card.dataset.horarioId  = h.id;
     card.dataset.nombre     = h.materia_nombre;
     card.dataset.clave      = h.materia_clave;
@@ -114,7 +116,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     card.dataset.horaInicio = h.hora_inicio;
     card.dataset.horaFin    = h.hora_fin;
 
-    card.style.borderLeftColor = h.materia_color || '#3b82f6';
+    // ── Aplicar color: borde izquierdo + fondo suave ──
+    const color = h.materia_color || '#3b82f6';
+    card.style.borderLeftColor = color;
+    card.style.backgroundColor = color + '22';   // ~13 % de opacidad
 
     card.innerHTML = `
       <span class="clase-clave">${h.materia_clave}</span>
@@ -125,23 +130,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     return card;
   }
 
+  /**
+   * insertarCard — coloca la card en CADA casilla que cubre el bloque.
+   *
+   * El PDF fusiona bloques consecutivos, por lo que un horario puede tener
+   * hora_inicio="07:00" y hora_fin="08:40" (dos slots de 50 min).
+   * En ese caso se inserta la card (con texto completo) solo en el primer slot
+   * y se marca el resto con la clase "casilla-ocupada" para indicar continuidad.
+   */
   function insertarCard(h) {
-    const diaStr   = DIA_SEMANA_MAP[h.dia_semana];
-    if (!diaStr) return;
-
-    const horaAttr = `${h.hora_inicio}-${h.hora_fin}`;
-    const casilla  = document.querySelector(
-      `.casilla[data-dia="${diaStr}"][data-hora="${horaAttr}"]`
-    );
-
-    if (!casilla) {
-      console.warn(`Casilla no encontrada: dia=${diaStr} hora=${horaAttr}`);
+    const diaStr = DIA_SEMANA_MAP[h.dia_semana];
+    if (!diaStr) {
+      console.warn(`dia_semana desconocido: ${h.dia_semana}`);
       return;
     }
 
-    const card = crearCard(h);
-    casilla.appendChild(card);
-    activarCard(card);
+    // Índice del slot donde comienza el bloque
+    const idxInicio = SLOTS_ACTIVOS.findIndex(s => s.start === h.hora_inicio);
+    if (idxInicio === -1) {
+      console.warn(`hora_inicio no encontrada en SLOTS_ACTIVOS: ${h.hora_inicio}`);
+      return;
+    }
+
+    // Índice del slot donde termina (hora_fin coincide con el start del siguiente slot
+    // o con "18:00" que es el end del último slot).
+    // Buscamos el primer slot cuyo start >= hora_fin → ese slot ya NO pertenece al bloque.
+    const idxFin = SLOTS_ACTIVOS.findIndex(s => s.start >= h.hora_fin);
+    const slotsDelBloque = idxFin === -1
+      ? SLOTS_ACTIVOS.slice(idxInicio)               // hasta el final del día
+      : SLOTS_ACTIVOS.slice(idxInicio, idxFin);      // rango normal
+
+    if (slotsDelBloque.length === 0) return;
+
+    slotsDelBloque.forEach((slot, i) => {
+      const horaAttr = `${slot.start}-${slot.end}`;
+      const casilla  = document.querySelector(
+        `.casilla[data-dia="${diaStr}"][data-hora="${horaAttr}"]`
+      );
+      if (!casilla) {
+        console.warn(`Casilla no encontrada: dia=${diaStr} hora=${horaAttr}`);
+        return;
+      }
+
+      if (i === 0) {
+        // Primera casilla del bloque → card completa
+        const card = crearCard(h);
+        casilla.appendChild(card);
+        activarCard(card);
+      } else {
+        // Casillas de continuación → franja de color sin texto
+        const cont = document.createElement('div');
+        cont.className = 'clase-card clase-card-cont';
+        cont.dataset.horarioId = h.id;
+        const color = h.materia_color || '#3b82f6';
+        cont.style.borderLeftColor = color;
+        cont.style.backgroundColor = color + '22';
+        casilla.appendChild(cont);
+      }
+    });
   }
 
   async function cargarYRenderizarHorarios() {
@@ -231,7 +277,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     poblarHoraInicio();
     hFin.innerHTML = '<option value="" disabled selected>Seleccionar</option>';
 
-    // Pre-seleccionar la entidad actual según el modo
     if (entidadId) {
       if (modo === 'aula')    hAula.value    = entidadId;
       if (modo === 'docente') hDocente.value = entidadId;
@@ -392,6 +437,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   let isDragging    = false;
 
   function activarCard(card) {
+    // Las cards de continuación no son interactivas
+    if (card.classList.contains('clase-card-cont')) return;
+
     card.setAttribute('draggable', 'true');
 
     card.addEventListener('click', function (e) {
@@ -430,8 +478,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       casilla.classList.remove('drag-over');
       if (!origenCasilla || origenCasilla === casilla) return;
 
-      const cardOrigen  = origenCasilla.querySelector('.clase-card');
-      const cardDestino = casilla.querySelector('.clase-card');
+      const cardOrigen  = origenCasilla.querySelector('.clase-card:not(.clase-card-cont)');
+      const cardDestino = casilla.querySelector('.clase-card:not(.clase-card-cont)');
       if (!cardOrigen) return;
 
       // Swap visual inmediato
@@ -444,10 +492,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       activarCard(cardOrigen);
 
-      // Persistir en API
-      const nuevoDia    = DIA_STRING_MAP[casilla.dataset.dia];
-      const [nuevoInicio, nuevoFin] = casilla.dataset.hora.split('-');
-      const horarioId   = cardOrigen.dataset.horarioId;
+      // ── Parsear data-hora de forma segura (formato "HH:MM-HH:MM") ──
+      const { inicio: nuevoInicio, fin: nuevoFin } = parsearDataHora(casilla.dataset.hora);
+      const nuevoDia  = DIA_STRING_MAP[casilla.dataset.dia];
+      const horarioId = cardOrigen.dataset.horarioId;
 
       if (horarioId && nuevoDia && nuevoInicio && nuevoFin) {
         try {
@@ -467,21 +515,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-          // Actualizar dataset de la card
           cardOrigen.dataset.diaSemana  = nuevoDia;
           cardOrigen.dataset.horaInicio = nuevoInicio;
           cardOrigen.dataset.horaFin    = nuevoFin;
 
         } catch (err) {
           console.error('Error al mover el horario', err);
-          await cargarYRenderizarHorarios(); // revertir
+          await cargarYRenderizarHorarios();
         }
       }
     });
   });
 
   /* ══════════════════════════════════════════════════════════
-     SUBIR HORARIO (Excel / CSV / JSON)
+    SUBIR HORARIO (PDF)
   ══════════════════════════════════════════════════════════ */
 
   const btnSubirHorario   = document.getElementById('btnSubirHorario');
@@ -497,13 +544,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     formData.append('archivo', file);
 
     try {
-      const res = await fetch('/api/horarios/importar', { method:'POST', body:formData });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      alert('Horario importado correctamente');
+      const res  = await fetch('/api/horarios/subir-pdf', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
+      let mensaje = `✅ Horario procesado.\n${data.insertados} clases insertadas.`;
+
+      if (data.errores && data.errores.length > 0) {
+        mensaje += `\n\n⚠️ No se encontraron (${data.errores.length}):\n`;
+        mensaje += data.errores.slice(0, 10).join('\n');
+        if (data.errores.length > 10) mensaje += `\n...y ${data.errores.length - 10} más.`;
+      }
+
+      alert(mensaje);
       await cargarYRenderizarHorarios();
+
     } catch (err) {
       console.error(err);
-      alert('Error al subir el archivo');
+      alert(`❌ Error al procesar el PDF:\n${err.message}`);
     } finally {
       inputSubirHorario.value = '';
     }
@@ -526,17 +585,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await cargarCatalogos();
 
-  // Restaurar selección previa si existe
   const guardado = localStorage.getItem(`horario_selector_${modo}`);
   if (guardado && selectorEntidad) {
-      selectorEntidad.value = guardado;
-      if (selectorEntidad.value === guardado) {   // confirmar que la opción existe
-          entidadId = guardado;
-          if (wrapper) wrapper.dataset.entidadId = entidadId;
-          const nombre = selectorEntidad.options[selectorEntidad.selectedIndex]?.text || '';
-          if (tituloHorario) tituloHorario.textContent = nombre;
-          await cargarYRenderizarHorarios();
-      }
+    selectorEntidad.value = guardado;
+    if (selectorEntidad.value === guardado) {
+      entidadId = guardado;
+      if (wrapper) wrapper.dataset.entidadId = entidadId;
+      const nombre = selectorEntidad.options[selectorEntidad.selectedIndex]?.text || '';
+      if (tituloHorario) tituloHorario.textContent = nombre;
+      await cargarYRenderizarHorarios();
+    }
   }
 
 });

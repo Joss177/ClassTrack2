@@ -82,11 +82,56 @@
             {% block content %}
             {% endblock %}
         </main>
+
+        <!-- Botón chatbot -->
+        <button class="chatbot-btn" id="chatbotBtn">
+            <img src="/static/img/IconoChat.png" alt="Asistente virtual">
+        </button>
+
+        <!-- Ventana de chat -->
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <p class="chat-name">Asistente ClassTrack</p>
+                        <p class="chat-status" id="chatStatus">En línea</p>
+                    </div>
+                </div>
+                <button class="chat-close" id="chatClose">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-msg bot">
+                    <span>¡Hola! Soy el Asistente de ClassTrack 👋<br>¿En qué puedo ayudarte hoy? Elige una opción o escribe tu pregunta directamente:</span>
+                </div>
+                <!-- Las 4 opciones rápidas se insertan aquí dinámicamente -->
+                <div class="quick-options" id="quickOptions"></div>
+            </div>
+
+            <!-- Indicador de escritura -->
+            <div class="typing-indicator" id="typingIndicator" style="display:none;">
+                <span></span><span></span><span></span>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Escribe un mensaje..." autocomplete="off">
+                <button id="chatSend">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
     </div>
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/siderbar.js"></script>
     <script src="/static/js/gestion.js"></script>
     <script src="/static/js/configuracion.js"></script>
     <script src="/static/js/horarios.js"></script>
+     <script src="/static/js/home.js"></script>
 </body>
+
 </html>

@@ -94,9 +94,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   ══════════════════════════════════════════════════════════ */
 
   function limpiarCards() {
-    document.querySelectorAll('.casilla .clase-card').forEach(c => c.remove());
+    document.querySelectorAll('.casilla').forEach(c => c.innerHTML = '');
   }
-
   function crearCard(h) {
     const card = document.createElement('div');
     card.className = 'clase-card';
@@ -140,44 +139,48 @@ document.addEventListener('DOMContentLoaded', async () => {
    */
   function insertarCard(h) {
     const diaStr = DIA_SEMANA_MAP[h.dia_semana];
-    if (!diaStr) {
-      console.warn(`dia_semana desconocido: ${h.dia_semana}`);
-      return;
-    }
+    if (!diaStr) return;
 
-    // Índice del slot donde comienza el bloque
     const idxInicio = SLOTS_ACTIVOS.findIndex(s => s.start === h.hora_inicio);
-    if (idxInicio === -1) {
-      console.warn(`hora_inicio no encontrada en SLOTS_ACTIVOS: ${h.hora_inicio}`);
+    const idxFin    = SLOTS_ACTIVOS.findIndex(s => s.end   === h.hora_fin);
+
+    if (idxInicio === -1 || idxFin === -1) {
+      console.warn('Horas no encontradas', h);
       return;
     }
 
-    // Índice del slot donde termina (hora_fin coincide con el start del siguiente slot
-    // o con "18:00" que es el end del último slot).
-    // Buscamos el primer slot cuyo start >= hora_fin → ese slot ya NO pertenece al bloque.
-    const idxFin = SLOTS_ACTIVOS.findIndex(s => s.start >= h.hora_fin);
-    const slotsDelBloque = idxFin === -1
-      ? SLOTS_ACTIVOS.slice(idxInicio)               // hasta el final del día
-      : SLOTS_ACTIVOS.slice(idxInicio, idxFin);      // rango normal
+    for (let i = idxInicio; i <= idxFin; i++) {
 
-    if (slotsDelBloque.length === 0) return;
-
-    slotsDelBloque.forEach((slot, i) => {
+      const slot = SLOTS_ACTIVOS[i];
       const horaAttr = `${slot.start}-${slot.end}`;
-      const casilla  = document.querySelector(
+
+      const casilla = document.querySelector(
         `.casilla[data-dia="${diaStr}"][data-hora="${horaAttr}"]`
       );
-      if (!casilla) {
-        console.warn(`Casilla no encontrada: dia=${diaStr} hora=${horaAttr}`);
-        return;
+
+      if (!casilla) continue;
+      if (casilla.querySelector(`[data-horario-id="${h.id}"]`)) continue;
+
+      let card;
+
+      if (i === idxInicio) {
+
+        card = crearCard(h);
+      } else {
+
+        card = document.createElement('div');
+        card.className = 'clase-card clase-card-cont';
+        card.style.backgroundColor = (h.materia_color || '#3b82f6') + '33';
       }
 
-      const card = crearCard(h);
       casilla.appendChild(card);
-      activarCard(card);
-    });
-  }
 
+      if (i === idxInicio) {
+        activarCard(card);
+      }
+    }
+  }
+  
   async function cargarYRenderizarHorarios() {
     if (!modo || !entidadId) return;
     limpiarCards();
@@ -563,39 +566,43 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnSubirHorario   = document.getElementById('btnSubirHorario');
   const inputSubirHorario = document.getElementById('inputSubirHorario');
 
-  btnSubirHorario?.addEventListener('click', () => inputSubirHorario?.click());
+  btnSubirHorario?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    inputSubirHorario?.click();
+  });
 
   inputSubirHorario?.addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const formData = new FormData();
-    formData.append('archivo', file);
+  inputSubirHorario.value = '';  // resetear ANTES del fetch para evitar doble disparo
 
-    try {
-      const res  = await fetch('/api/horarios/subir-pdf', { method: 'POST', body: formData });
-      const data = await res.json();
+  const formData = new FormData();
+  formData.append('archivo', file);
 
-      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+  try {
+    const res  = await fetch('/api/horarios/subir-pdf', { method: 'POST', body: formData });
+    const data = await res.json();
 
-      let mensaje = `✅ Horario procesado.\n${data.insertados} clases insertadas.`;
+    if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
 
-      if (data.errores && data.errores.length > 0) {
-        mensaje += `\n\n⚠️ No se encontraron (${data.errores.length}):\n`;
-        mensaje += data.errores.slice(0, 10).join('\n');
-        if (data.errores.length > 10) mensaje += `\n...y ${data.errores.length - 10} más.`;
-      }
+    let mensaje = `✅ Horario procesado.\n${data.insertados} clases insertadas.`;
 
-      alert(mensaje);
-      await cargarYRenderizarHorarios();
-
-    } catch (err) {
-      console.error(err);
-      alert(`❌ Error al procesar el PDF:\n${err.message}`);
-    } finally {
-      inputSubirHorario.value = '';
+    if (data.errores && data.errores.length > 0) {
+      mensaje += `\n\n⚠️ No se encontraron (${data.errores.length}):\n`;
+      mensaje += data.errores.slice(0, 10).join('\n');
+      if (data.errores.length > 10) mensaje += `\n...y ${data.errores.length - 10} más.`;
     }
-  });
+
+    alert(mensaje);
+    await cargarYRenderizarHorarios();
+
+  } catch (err) {
+    console.error(err);
+    alert(`❌ Error al procesar el PDF:\n${err.message}`);
+  }
+});
 
   /* ══════════════════════════════════════════════════════════
      ESCAPE GLOBAL

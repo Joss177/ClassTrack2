@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, SmallInteger, String, ForeignKey, TIMESTAMP, Text, Boolean, text
+from sqlalchemy import Column, Integer, SmallInteger, String, ForeignKey, TIMESTAMP, Text, Boolean, text, UniqueConstraint
 from .database import Base
 
 class User(Base):
@@ -63,8 +63,12 @@ class Horario(Base):
     materia_id  = Column(Integer, ForeignKey("materias.id"), nullable=True)
     grupo_id    = Column(Integer, ForeignKey("grupos.id"),   nullable=True)
     aula_id     = Column(Integer, ForeignKey("aulas.id"),    nullable=True)
-    dia_semana  = Column(SmallInteger, nullable=False)        # 1=Lunes ... 5=Viernes
+    dia_semana  = Column(SmallInteger, nullable=False)
     hora_inicio = Column(String(5), nullable=False)
     hora_fin    = Column(String(5), nullable=False)
     created     = Column(TIMESTAMP, server_default=text('now()'))
     modified    = Column(TIMESTAMP, server_default=text('now()'))
+
+    __table_args__ = (
+        UniqueConstraint('aula_id', 'dia_semana', 'hora_inicio', name='uq_horario_aula_dia_hora'),
+    )

@@ -1,7 +1,6 @@
 import pdfplumber
 import re
 import io
-import json
 
 INDICES_DIAS = [2, 4, 6, 8, 10]
 
@@ -10,6 +9,22 @@ COLORES = [
     "#a78bfa", "#f472b6", "#22d3ee", "#0ea5e9",
     "#10b981", "#ef4444", "#d97706", "#4b5563",
     "#16a34a", "#3b82f6", "#e879f9", "#f97316",
+]
+
+# Todos los slots activos (sin recesos)
+SLOTS_PDF = [
+    ("07:00", "07:50"),
+    ("07:50", "08:40"),
+    ("08:40", "09:30"),
+    ("09:30", "10:20"),
+    ("10:50", "11:40"),
+    ("11:40", "12:30"),
+    ("12:30", "13:20"),
+    ("13:20", "14:10"),
+    ("14:10", "15:00"),
+    ("15:00", "15:50"),
+    ("16:20", "17:10"),
+    ("17:10", "18:00"),
 ]
 
 DOCENTES_CORRUPTOS = {
@@ -75,6 +90,24 @@ def extraer_tutor(texto):
     if m: return limpiar(m.group(1))
     return ""
 
+def expandir_en_slots(codigo, aula, dia_num, h_ini, h_fin):
+    """
+    Dado un bloque con hora_inicio y hora_fin del PDF,
+    devuelve una lista de slots individuales de 50 min que caen dentro del rango.
+    Ej: h_ini="07:50", h_fin="09:30" -> [("07:50","08:40"), ("08:40","09:30")]
+    """
+    resultado = []
+    for slot_ini, slot_fin in SLOTS_PDF:
+        if slot_ini >= h_ini and slot_fin <= h_fin:
+            resultado.append({
+                "codigo":      codigo,
+                "aula":        aula,
+                "dia_semana":  dia_num,
+                "hora_inicio": slot_ini,
+                "hora_fin":    slot_fin,
+            })
+    return resultado
+
 def extraer_pagina(page):
     texto        = page.extract_text() or ""
     nombre_grupo = extraer_nombre_grupo(texto)
@@ -92,7 +125,7 @@ def extraer_pagina(page):
                 continue
             celda_0 = limpiar(fila[0])
 
-            hm = re.match(r"(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})", celda_0)
+            hm = re.match(r"(\d{1,2}:\d{2})\s*[-]\s*(\d{1,2}:\d{2})", celda_0)
             if hm and "RECESO" not in celda_0.upper():
                 h_ini = normalizar_hora(hm.group(1))
                 h_fin = normalizar_hora(hm.group(2))
@@ -108,13 +141,10 @@ def extraer_pagina(page):
                         aula = "Tec. Móvil"
                     else:
                         aula = partes[1].strip() if len(partes) > 1 else "SIN_AULA"
-                    bloques_raw.append({
-                        "codigo":      codigo,
-                        "aula":        aula,
-                        "dia_semana":  dia_num,
-                        "hora_inicio": h_ini,
-                        "hora_fin":    h_fin,
-                    })
+
+                    # Expandir en slots individuales de 50 min
+                    slots = expandir_en_slots(codigo, aula, dia_num, h_ini, h_fin)
+                    bloques_raw.extend(slots)
                 continue
 
             if len(fila) >= 3:
@@ -132,10 +162,12 @@ def extraer_pagina(page):
                 docente_raw = corregir_docente(docente_raw)
                 materias_raw[codigo_raw] = {"nombre": nombre_raw, "docente": docente_raw}
 
+    # Corregir aulas "Tec." sueltas
     for b in bloques_raw:
         if b["aula"] == "Tec.":
             b["aula"] = "Tec. Móvil"
 
+    # Rellenar aulas faltantes por código
     for i in range(len(bloques_raw)):
         if bloques_raw[i]["aula"] == "SIN_AULA":
             for j in range(len(bloques_raw)):
@@ -145,24 +177,14 @@ def extraer_pagina(page):
                     break
 
     bloques_raw.sort(key=lambda x: (x["dia_semana"], x["hora_inicio"]))
-    horarios_final = []
-    for b in bloques_raw:
-        if horarios_final:
-            ult = horarios_final[-1]
-            if (ult["codigo"]      == b["codigo"]
-                    and ult["aula"]       == b["aula"]
-                    and ult["dia_semana"] == b["dia_semana"]
-                    and ult["hora_fin"]   == b["hora_inicio"]):
-                ult["hora_fin"] = b["hora_fin"]
-                continue
-        if b["aula"] != "SIN_AULA":
-            aulas_set.add(b["aula"])
-        horarios_final.append(dict(b))
+    horarios_final = list(bloques_raw)
 
+    # Asignar docente a cada bloque
     for bloque in horarios_final:
         info = materias_raw.get(bloque["codigo"], {})
         bloque["docente"] = info.get("docente", "Sin asignar")
 
+    # Asegurar que materias sin bloque queden en el mapa
     for cod in set(b["codigo"] for b in horarios_final):
         if cod not in materias_raw:
             materias_raw[cod] = {"nombre": "MATERIA NO REGISTRADA", "docente": "Sin asignar"}
@@ -191,7 +213,7 @@ def extraer_pagina(page):
     }
 
 
-# ── Función exportable para FastAPI ──────────────────────────
+# Función exportable para FastAPI
 
 def procesar_pdf(pdf_bytes: bytes) -> dict:
     datos_grupos = []

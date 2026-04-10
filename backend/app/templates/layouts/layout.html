@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>ClassTrack</title>
+    <!-- CSS globales -->
     <link rel="stylesheet" href="/static/css/layout.css">
     <link rel="stylesheet" href="/static/css/home.css">
     <link rel="stylesheet" href="/static/css/gestion.css">
     <link rel="stylesheet" href="/static/css/configuracion.css">
     <link rel="stylesheet" href="/static/css/horarios.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Bloque para CSS adicionales -->
+    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
@@ -69,7 +73,6 @@
                         <span>Configuración</span>
                     </a>
                 </li>
-                
             </ul>
 
             <div class="logout" id="logoutBtn">
@@ -79,8 +82,7 @@
         </aside>
 
         <main class="content">
-            {% block content %}
-            {% endblock %}
+            {% block content %}{% endblock %}
         </main>
 
         <!-- Botón chatbot -->
@@ -109,11 +111,9 @@
                 <div class="chat-msg bot">
                     <span>¡Hola! Soy el Asistente de ClassTrack 👋<br>¿En qué puedo ayudarte hoy? Elige una opción o escribe tu pregunta directamente:</span>
                 </div>
-                <!-- Las 4 opciones rápidas se insertan aquí dinámicamente -->
                 <div class="quick-options" id="quickOptions"></div>
             </div>
 
-            <!-- Indicador de escritura -->
             <div class="typing-indicator" id="typingIndicator" style="display:none;">
                 <span></span><span></span><span></span>
             </div>
@@ -126,12 +126,16 @@
             </div>
         </div>
     </div>
+
+    <!-- JS globales -->
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/siderbar.js"></script>
     <script src="/static/js/gestion.js"></script>
     <script src="/static/js/configuracion.js"></script>
     <script src="/static/js/horarios.js"></script>
-     <script src="/static/js/home.js"></script>
-</body>
+    <script src="/static/js/home.js"></script>
 
+    <!-- Bloque para JS adicionales -->
+    {% block extra_js %}{% endblock %}
+</body>
 </html>

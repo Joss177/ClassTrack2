@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ── Aplicar color: borde izquierdo + fondo suave ──
     const color = h.materia_color || '#3b82f6';
     card.style.borderLeftColor = color;
-    card.style.backgroundColor = color + '22';   // ~13 % de opacidad
+    card.style.backgroundColor = color + '55';   // RR~13 % de opacidad
 
     card.innerHTML = `
       <span class="clase-clave">${h.materia_clave}</span>
@@ -172,21 +172,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      if (i === 0) {
-        // Primera casilla del bloque → card completa
-        const card = crearCard(h);
-        casilla.appendChild(card);
-        activarCard(card);
-      } else {
-        // Casillas de continuación → franja de color sin texto
-        const cont = document.createElement('div');
-        cont.className = 'clase-card clase-card-cont';
-        cont.dataset.horarioId = h.id;
-        const color = h.materia_color || '#3b82f6';
-        cont.style.borderLeftColor = color;
-        cont.style.backgroundColor = color + '22';
-        casilla.appendChild(cont);
-      }
+      const card = crearCard(h);
+      casilla.appendChild(card);
+      activarCard(card);
     });
   }
 
@@ -397,21 +385,62 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnClose?.addEventListener('click', cerrarModalDetalle);
   overlay?.addEventListener('click', e => { if (e.target === overlay) cerrarModalDetalle(); });
 
-  btnEliminar?.addEventListener('click', async () => {
+  // ── Modal Eliminar ──
+  const modalEliminar       = document.getElementById('modalEliminar');
+  const btnEliminarCancelar = document.getElementById('btnEliminarCancelar');
+  const btnEliminarConfirmar= document.getElementById('btnEliminarConfirmar');
+  const btnVaciarTabla      = document.getElementById('btnVaciarTabla');
+
+  let accionEliminar     = null;
+  let horarioIdPendiente = null;
+
+  btnEliminar?.addEventListener('click', () => {
     if (!cardActiva) return;
-    const id = cardActiva.dataset.horarioId;
-    if (!id || !confirm('¿Eliminar esta clase del horario?')) return;
+    horarioIdPendiente = cardActiva.dataset.horarioId;
+    accionEliminar     = 'horario';
+    cerrarModalDetalle();
+    modalEliminar.classList.add('active');
+  });
+
+  btnVaciarTabla?.addEventListener('click', () => {
+    accionEliminar     = 'vaciar';
+    horarioIdPendiente = null;
+    modalEliminar.classList.add('active');
+  });
+
+  btnEliminarCancelar?.addEventListener('click', () => {
+    accionEliminar     = null;
+    horarioIdPendiente = null;
+    modalEliminar.classList.remove('active');
+  });
+
+  btnEliminarConfirmar?.addEventListener('click', async () => {
+    modalEliminar.classList.remove('active');
 
     try {
-      const res = await fetch(`/api/horarios/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      cerrarModalDetalle();
+      if (accionEliminar === 'horario' && horarioIdPendiente) {
+        const res  = await fetch(`/api/horarios/${horarioIdPendiente}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(`Error al eliminar horario: ${res.status}`);
+
+      } else if (accionEliminar === 'vaciar') {
+        const res  = await fetch('/api/horarios/vaciar-todo', { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(`Error al vaciar: ${res.status}`);
+      }
+
       await cargarYRenderizarHorarios();
+
     } catch (e) {
-      console.error('Error eliminando horario', e);
+      console.error('Error al eliminar:', e);
       alert('No se pudo eliminar. Intenta de nuevo.');
+    } finally {
+      accionEliminar     = null;
+      horarioIdPendiente = null;
     }
   });
+
+
 
   btnEditar?.addEventListener('click', () => {
     if (!cardActiva) return;
@@ -598,3 +627,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
 });
+

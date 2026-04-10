@@ -109,6 +109,16 @@ def editar_horario(id: int, data: HorarioCreate, db: Session = Depends(get_db)):
     db.refresh(horario)
     return horario
 
+@router.delete("/api/horarios/vaciar-todo")
+def vaciar_todo(db: Session = Depends(get_db)):
+    db.query(Docente).delete()
+    db.query(Materia).delete()
+    db.query(Aula).delete()
+    db.query(Grupo).delete()
+    db.query(Horario).delete()
+    db.commit()
+    return JSONResponse(content={"ok": True})
+
 
 @router.delete("/api/horarios/{id}")
 def eliminar_horario(id: int, db: Session = Depends(get_db)):

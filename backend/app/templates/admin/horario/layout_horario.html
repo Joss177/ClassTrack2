@@ -1,9 +1,6 @@
 {% extends "layouts/layout.html" %}
 
 {% block content %}
-
-<link rel="stylesheet" href="/static/css/horario.css">
-
 <div class="gestion-container">
   <h1>Horario</h1>
 
@@ -20,6 +17,7 @@
         <button class="btn-secundario" id="btnSubirHorario">📄 Subir Horario</button>
         <button class="btn-agregar"    id="btnAgregarClase">+ Agregar Clase</button>
         <input type="file" id="inputSubirHorario" accept=".pdf" hidden>
+        <button class="btn-vaciar" id="btnVaciarTabla">- Vaciar Tabla</button>
       </div>
     </div>
 
@@ -106,6 +104,29 @@
   </div>
 </div>
 
-<script src="/static/js/horario.js"></script>
+<!-- MODAL CONFIRMAR ELIMINACIÓN -->
+<div class="modal-overlay" id="modalEliminar">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Confirmar Eliminación</h2>
+        </div>
+        <div class="modal-body">
+            <p style="color: #475569; font-size: 15px;">
+                ¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancelar" id="btnEliminarCancelar">Cancelar</button>
+            <button class="btn-eliminar-confirmar" id="btnEliminarConfirmar">Eliminar</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/horario.css">
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/horarios.js"></script>
 {% endblock %}

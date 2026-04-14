@@ -1,0 +1,326 @@
+/* =============================================
+   camaras.css — Vista de Cámaras
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+/* ---------- Variables ---------- */
+:root {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface-hover: #f8f9fb;
+  --border: #e4e7ec;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --accent: #16a34a;
+  --accent-light: #dcfce7;
+  --accent-text: #15803d;
+  --live-red: #ef4444;
+  --live-bg: rgba(0, 0, 0, 0.72);
+  --radius-card: 14px;
+  --radius-badge: 8px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+  --shadow-card-hover: 0 4px 8px rgba(0,0,0,.08), 0 12px 32px rgba(0,0,0,.10);
+  --transition: 0.22s cubic-bezier(.4,0,.2,1);
+  --font-main: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+/* ---------- Wrapper ---------- */
+.camaras-wrapper {
+  max-width: 1200px;
+
+  font-family: var(--font-main);
+}
+
+/* ---------- Header ---------- */
+.camaras-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.camaras-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.camaras-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.total-count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: var(--border);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+/* ---------- Grid ---------- */
+.camaras-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ---------- Card ---------- */
+.camara-card {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    box-shadow var(--transition),
+    transform var(--transition),
+    border-color var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.camara-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+  border-color: #d1d5db;
+}
+
+/* ---------- Thumbnail ---------- */
+.camara-thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #d1d5db;
+}
+
+.thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.camara-card:hover .thumbnail-img {
+  transform: scale(1.04);
+}
+
+/* ---------- Live Badge ---------- */
+.live-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--live-bg);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 5px 12px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--live-red);
+  flex-shrink: 0;
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.55; transform: scale(0.85); }
+}
+
+/* ---------- Info ---------- */
+.camara-info {
+  padding: 1rem 1.1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.camara-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.camara-nombre {
+  font-size: 0.975rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Status Badge ---------- */
+.camara-status {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: var(--radius-badge);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status-activa {
+  background: var(--accent-light);
+  color: var(--accent-text);
+}
+
+.status-inactiva {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ---------- Detail List ---------- */
+.camara-details {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.camara-details li {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 0.3rem;
+}
+
+.detail-label {
+  color: var(--text-secondary);
+}
+
+.detail-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ---------- Empty State ---------- */
+.camaras-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  .camaras-wrapper {
+    padding: 1.25rem 1rem 3rem;
+  }
+
+  .camaras-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .camaras-title {
+    font-size: 1.3rem;
+  }
+}
+
+.camaras-header {
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+.btn-agregar {
+  text-decoration: none;
+}
+
+.form-group select {
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    background: white;
+    color: #1e293b;
+    cursor: pointer;
+}
+
+.form-group select:focus {
+    border-color: #243f63;
+}
+
+/* ─── TOAST ───────────────────────────── */
+
+.toast-camara {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #1e293b;
+  color: #fff;
+  border-radius: 10px;
+  min-width: 280px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  transform: translateX(120%);
+  opacity: 0;
+  transition: all 0.4s ease;
+  z-index: 9999;
+}
+
+.toast-camara.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.toast-icon {
+  background: #22c55e;
+  color: white;
+  border-radius: 50%;
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.toast-text strong {
+  display: block;
+  font-size: 14px;
+}
+
+.toast-text p {
+  font-size: 12px;
+  margin: 0;
+  color: #cbd5f5;
+}
+
+.toast-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}

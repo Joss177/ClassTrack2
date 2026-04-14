@@ -69,9 +69,17 @@ def admin_sheets(request: Request):
         context={"seccion": "sheets"})
 
 @router.get("/admin/camaras")
-def admin_camaras(request: Request):
-    return templates.TemplateResponse(request=request, name="admin/camaras.html",
-        context={"seccion": "camaras"})
+def admin_camaras(request: Request, db: Session = Depends(get_db)):
+    aulas = db.query(Aula).order_by(Aula.nombre).all()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/camaras.html",
+        context={
+            "seccion": "camaras",
+            "aulas": aulas
+        }
+    )
 
 @router.get("/admin/configuracion")
 def admin_configuracion(request: Request):
@@ -284,3 +292,27 @@ def eliminar_horario(id: int, db: Session = Depends(get_db)):
     db.delete(horario)
     db.commit()
     return JSONResponse(content={"ok": True})
+
+# ─── API Camaras ─────────────────────────────────────────────────────────────
+
+from ..models import Camara
+from ..schemas import CamaraCreate
+
+@router.post("/api/camaras")
+def crear_camara(data: CamaraCreate, db: Session = Depends(get_db)):
+
+    # Validar aula
+    aula = db.query(Aula).filter(Aula.id == data.aula_id).first()
+    if not aula:
+        raise HTTPException(status_code=404, detail="Aula no encontrada")
+
+    camara = Camara(
+        aula_id=data.aula_id,
+        estado=data.estado or "activa"
+    )
+
+    db.add(camara)
+    db.commit()
+    db.refresh(camara)
+
+    return camara

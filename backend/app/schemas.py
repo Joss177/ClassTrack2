@@ -101,3 +101,21 @@ class HorarioResponse(HorarioBase):
 
     class Config:
         from_attributes = True
+
+# ─── Camaras ──────────────────────────────────────────────────────────────────
+
+class CamaraBase(BaseModel):
+    aula_id: int
+    estado:  Optional[str] = 'activa'  # 'activa' | 'inactiva' | 'mantenimiento'
+
+class CamaraCreate(CamaraBase):
+    pass
+
+class CamaraResponse(CamaraBase):
+    id:               int
+    ultima_deteccion: Optional[datetime] = None
+    created:          Optional[datetime] = None
+    modified:         Optional[datetime] = None
+
+    class Config:
+        from_attributes = True

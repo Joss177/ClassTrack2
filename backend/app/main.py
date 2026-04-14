@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.routers.chatbot_route import router as chatbot_router
-from .routers import admin, auth, lab, docente, horario
+from .routers import admin, auth, lab, docente, horario, configuracion
 
 app = FastAPI()
 
@@ -36,3 +36,4 @@ app.include_router(horario.router)
 app.include_router(admin.router)
 app.include_router(lab.router)
 app.include_router(docente.router)
+app.include_router(configuracion.router)

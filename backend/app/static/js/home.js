@@ -1,6 +1,6 @@
 if (document.getElementById('chatbotBtn')) {
 
-// ─── Estado de la conversación ───────────────────────────────────────────────
+// ─── Estado ──────────────────────────────────────────────────────────────────
 function getHistory() {
     return JSON.parse(sessionStorage.getItem('chatHistory') || '[]');
 }
@@ -19,19 +19,18 @@ const quickOptions    = document.getElementById('quickOptions');
 const typingIndicator = document.getElementById('typingIndicator');
 const chatStatus      = document.getElementById('chatStatus');
 
-// ─── Restaurar mensajes anteriores ───────────────────────────────────────────
+// ─── Restaurar historial ──────────────────────────────────────────────────────
 function restoreMessages() {
     const history = getHistory();
     if (history.length === 0) return;
-
-    // Oculta opciones rápidas si ya hay conversación
     quickOptions.style.display = 'none';
-
-    // Renderiza el historial
+    // Limpia mensajes previos para no duplicar al reabrir
+    const mensajesExistentes = chatMessages.querySelectorAll('.chat-msg');
+    mensajesExistentes.forEach(m => m.remove());
     history.forEach(m => addMessage(m.content, m.role === 'user' ? 'user' : 'bot'));
 }
 
-// ─── Abrir / cerrar ventana ───────────────────────────────────────────────────
+// ─── Abrir / cerrar ───────────────────────────────────────────────────────────
 chatBtn.addEventListener('click', () => {
     chatWindow.classList.toggle('open');
     if (chatWindow.classList.contains('open')) {
@@ -43,12 +42,11 @@ chatBtn.addEventListener('click', () => {
 
 chatClose.addEventListener('click', () => chatWindow.classList.remove('open'));
 
-// ─── Cargar opciones rápidas desde el backend ─────────────────────────────────
+// ─── Opciones rápidas ─────────────────────────────────────────────────────────
 async function loadQuickOptions() {
     try {
         const res  = await fetch('/api/chatbot/options');
         const data = await res.json();
-
         data.options.forEach(opt => {
             const btn = document.createElement('button');
             btn.classList.add('quick-option-btn');
@@ -59,20 +57,21 @@ async function loadQuickOptions() {
             });
             quickOptions.appendChild(btn);
         });
-
         quickOptions.dataset.loaded = 'true';
     } catch (err) {
         console.error('Error cargando opciones rápidas:', err);
     }
 }
 
-// ─── Agregar mensaje al DOM ───────────────────────────────────────────────────
+// ─── Renderizar mensaje ───────────────────────────────────────────────────────
 function addMessage(text, type) {
     const msg = document.createElement('div');
     msg.classList.add('chat-msg', ...type.split(' '));
 
+    // Soporte básico de Markdown: negrita y saltos de línea
     const formatted = text
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/\n/g, '<br>');
 
     msg.innerHTML = `<span>${formatted}</span>`;
@@ -80,17 +79,20 @@ function addMessage(text, type) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// ─── Indicador de escritura ───────────────────────────────────────────────────
+// ─── Typing indicator ─────────────────────────────────────────────────────────
 function setTyping(active) {
     typingIndicator.style.display = active ? 'flex' : 'none';
-    chatStatus.textContent = active ? 'Escribiendo...' : 'En línea';
+    chatStatus.textContent = active ? 'Consultando sistema...' : 'En línea';
     if (active) chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// ─── Enviar mensaje al backend FastAPI ───────────────────────────────────────
+// ─── Enviar mensaje ───────────────────────────────────────────────────────────
 async function sendMessage(overrideText) {
     const text = (overrideText ?? chatInput.value).trim();
     if (!text) return;
+
+    // Ocultar opciones rápidas al primer mensaje
+    quickOptions.style.display = 'none';
 
     addMessage(text, 'user');
     chatInput.value    = '';
@@ -98,6 +100,7 @@ async function sendMessage(overrideText) {
     chatSend.disabled  = true;
     setTyping(true);
 
+    // Guardar mensaje del usuario en historial
     const history = getHistory();
     history.push({ role: 'user', content: text });
     saveHistory(history);
@@ -106,9 +109,9 @@ async function sendMessage(overrideText) {
         const res = await fetch('/api/chatbot/message', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({
+            body: JSON.stringify({
                 message: text,
-                history: history.slice(0, -1)
+                history: history.slice(0, -1)  // historial previo sin el actual
             })
         });
 
@@ -133,6 +136,21 @@ async function sendMessage(overrideText) {
         chatSend.disabled  = false;
         chatInput.focus();
     }
+}
+
+// ─── Botón limpiar chat ───────────────────────────────────────────────────────
+// Opcional: agrega un botón con id="chatClear" en tu HTML para resetear
+const chatClear = document.getElementById('chatClear');
+if (chatClear) {
+    chatClear.addEventListener('click', () => {
+        sessionStorage.removeItem('chatHistory');
+        const mensajes = chatMessages.querySelectorAll('.chat-msg');
+        mensajes.forEach(m => m.remove());
+        quickOptions.style.display = '';
+        quickOptions.dataset.loaded = '';
+        quickOptions.innerHTML = '';
+        loadQuickOptions();
+    });
 }
 
 // ─── Eventos ──────────────────────────────────────────────────────────────────

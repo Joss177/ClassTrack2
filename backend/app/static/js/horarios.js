@@ -462,14 +462,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   /* ══════════════════════════════════════════════════════════
-     DRAG & DROP + CLICK → modal detalle
+    DRAG & DROP + TOUCH + CLICK → modal detalle
   ══════════════════════════════════════════════════════════ */
 
   let origenCasilla = null;
   let isDragging    = false;
 
   function activarCard(card) {
-    // Las cards de continuación no son interactivas
     if (card.classList.contains('clase-card-cont')) return;
 
     card.setAttribute('draggable', 'true');
@@ -493,6 +492,119 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.querySelectorAll('.casilla').forEach(c => c.classList.remove('drag-over'));
       setTimeout(() => { isDragging = false; }, 50);
     });
+
+    // ── Touch support ──
+    activarTouchDrag(card);
+  }
+
+  function activarTouchDrag(card) {
+    if (card.classList.contains('clase-card-cont')) return;
+
+    let touchOrigenCasilla = null;
+    let clone              = null;
+    let offsetX            = 0;
+    let offsetY            = 0;
+
+    card.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1) return;
+      const touch = e.touches[0];
+
+      touchOrigenCasilla = card.closest('.casilla');
+
+      clone = card.cloneNode(true);
+      clone.style.position      = 'fixed';
+      clone.style.zIndex        = '9999';
+      clone.style.opacity       = '0.8';
+      clone.style.pointerEvents = 'none';
+      clone.style.width         = card.offsetWidth + 'px';
+      clone.style.margin        = '0';
+
+      const rect = card.getBoundingClientRect();
+      offsetX = touch.clientX - rect.left;
+      offsetY = touch.clientY - rect.top;
+
+      clone.style.left = (touch.clientX - offsetX) + 'px';
+      clone.style.top  = (touch.clientY - offsetY) + 'px';
+
+      document.body.appendChild(clone);
+      card.style.opacity = '0.4';
+    }, { passive: true });
+
+    card.addEventListener('touchmove', function (e) {
+      if (!clone) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+
+      clone.style.left = (touch.clientX - offsetX) + 'px';
+      clone.style.top  = (touch.clientY - offsetY) + 'px';
+
+      document.querySelectorAll('.casilla').forEach(c => c.classList.remove('drag-over'));
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const casillaDestino = el?.closest('.casilla');
+      if (casillaDestino) {
+        // Solo resaltar si está vacía
+        const ocupada = casillaDestino.querySelector('.clase-card:not(.clase-card-cont)');
+        if (!ocupada) casillaDestino.classList.add('drag-over');
+      }
+    }, { passive: false });
+
+    card.addEventListener('touchend', async function (e) {
+      if (!clone) return;
+      const touch = e.changedTouches[0];
+
+      clone.remove();
+      clone = null;
+      card.style.opacity = '1';
+      document.querySelectorAll('.casilla').forEach(c => c.classList.remove('drag-over'));
+
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const casillaDestino = el?.closest('.casilla');
+
+      if (!casillaDestino || casillaDestino === touchOrigenCasilla) return;
+
+      // ── Bloquear si casilla destino ya está ocupada ──
+      const cardDestino = casillaDestino.querySelector('.clase-card:not(.clase-card-cont)');
+      if (cardDestino) return;
+
+      const cardOrigen = touchOrigenCasilla.querySelector('.clase-card:not(.clase-card-cont)');
+      if (!cardOrigen) return;
+
+      casillaDestino.appendChild(cardOrigen);
+      activarCard(cardOrigen);
+      activarTouchDrag(cardOrigen);
+
+      const { inicio: nuevoInicio, fin: nuevoFin } = parsearDataHora(casillaDestino.dataset.hora);
+      const nuevoDia  = DIA_STRING_MAP[casillaDestino.dataset.dia];
+      const horarioId = cardOrigen.dataset.horarioId;
+
+      if (!horarioId || !nuevoDia || !nuevoInicio || !nuevoFin) return;
+
+      try {
+        const res = await fetch(`/api/horarios/${horarioId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            docente_id:  parseInt(cardOrigen.dataset.docenteId) || null,
+            materia_id:  parseInt(cardOrigen.dataset.materiaId) || null,
+            grupo_id:    parseInt(cardOrigen.dataset.grupoId)   || null,
+            aula_id:     parseInt(cardOrigen.dataset.aulaId)    || null,
+            dia_semana:  nuevoDia,
+            hora_inicio: nuevoInicio,
+            hora_fin:    nuevoFin,
+          }),
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        cardOrigen.dataset.diaSemana  = nuevoDia;
+        cardOrigen.dataset.horaInicio = nuevoInicio;
+        cardOrigen.dataset.horaFin    = nuevoFin;
+
+      } catch (err) {
+        console.error('Error al mover (touch):', err);
+        await cargarYRenderizarHorarios();
+      }
+    });
   }
 
   document.querySelectorAll('.casilla').forEach(casilla => {
@@ -500,7 +612,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     casilla.addEventListener('dragover', e => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
-      casilla.classList.add('drag-over');
+      // Solo resaltar si está vacía
+      const ocupada = casilla.querySelector('.clase-card:not(.clase-card-cont)');
+      if (!ocupada) casilla.classList.add('drag-over');
     });
 
     casilla.addEventListener('dragleave', () => casilla.classList.remove('drag-over'));
@@ -510,51 +624,46 @@ document.addEventListener('DOMContentLoaded', async () => {
       casilla.classList.remove('drag-over');
       if (!origenCasilla || origenCasilla === casilla) return;
 
-      const cardOrigen  = origenCasilla.querySelector('.clase-card:not(.clase-card-cont)');
+      // ── Bloquear si casilla destino ya está ocupada ──
       const cardDestino = casilla.querySelector('.clase-card:not(.clase-card-cont)');
+      if (cardDestino) return;
+
+      const cardOrigen = origenCasilla.querySelector('.clase-card:not(.clase-card-cont)');
       if (!cardOrigen) return;
 
-      // Swap visual inmediato
-      if (cardDestino) {
-        origenCasilla.appendChild(cardDestino);
-        casilla.appendChild(cardOrigen);
-        activarCard(cardDestino);
-      } else {
-        casilla.appendChild(cardOrigen);
-      }
+      casilla.appendChild(cardOrigen);
       activarCard(cardOrigen);
 
-      // ── Parsear data-hora de forma segura (formato "HH:MM-HH:MM") ──
       const { inicio: nuevoInicio, fin: nuevoFin } = parsearDataHora(casilla.dataset.hora);
       const nuevoDia  = DIA_STRING_MAP[casilla.dataset.dia];
       const horarioId = cardOrigen.dataset.horarioId;
 
-      if (horarioId && nuevoDia && nuevoInicio && nuevoFin) {
-        try {
-          const res = await fetch(`/api/horarios/${horarioId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              docente_id:  parseInt(cardOrigen.dataset.docenteId) || null,
-              materia_id:  parseInt(cardOrigen.dataset.materiaId) || null,
-              grupo_id:    parseInt(cardOrigen.dataset.grupoId)   || null,
-              aula_id:     parseInt(cardOrigen.dataset.aulaId)    || null,
-              dia_semana:  nuevoDia,
-              hora_inicio: nuevoInicio,
-              hora_fin:    nuevoFin,
-            }),
-          });
+      if (!horarioId || !nuevoDia || !nuevoInicio || !nuevoFin) return;
 
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      try {
+        const res = await fetch(`/api/horarios/${horarioId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            docente_id:  parseInt(cardOrigen.dataset.docenteId) || null,
+            materia_id:  parseInt(cardOrigen.dataset.materiaId) || null,
+            grupo_id:    parseInt(cardOrigen.dataset.grupoId)   || null,
+            aula_id:     parseInt(cardOrigen.dataset.aulaId)    || null,
+            dia_semana:  nuevoDia,
+            hora_inicio: nuevoInicio,
+            hora_fin:    nuevoFin,
+          }),
+        });
 
-          cardOrigen.dataset.diaSemana  = nuevoDia;
-          cardOrigen.dataset.horaInicio = nuevoInicio;
-          cardOrigen.dataset.horaFin    = nuevoFin;
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        } catch (err) {
-          console.error('Error al mover el horario', err);
-          await cargarYRenderizarHorarios();
-        }
+        cardOrigen.dataset.diaSemana  = nuevoDia;
+        cardOrigen.dataset.horaInicio = nuevoInicio;
+        cardOrigen.dataset.horaFin    = nuevoFin;
+
+      } catch (err) {
+        console.error('Error al mover el horario', err);
+        await cargarYRenderizarHorarios();
       }
     });
   });

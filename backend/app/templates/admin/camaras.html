@@ -1,6 +1,114 @@
 {% extends "layouts/layout.html" %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/camaras.css') }}">
 
+<div class="camaras-wrapper">
+  <div class="camaras-header">
+    <h1 class="camaras-title">Cámaras</h1>
+    <button class="btn-agregar" onclick="document.getElementById('modalCamara').classList.add('active')">
+        + Agregar Cámara
+    </button>
+    </div>
+
+  <div class="camaras-grid">
+    {% for camara in camaras %}
+    <a href="/camaras/{{ camara.id }}" class="camara-card">
+      <div class="camara-thumbnail">
+        <img
+          src="{{ camara.thumbnail_url or url_for('static', path='img/camara-placeholder.jpg') }}"
+          alt="{{ camara.nombre }}"
+          class="thumbnail-img"
+        />
+        {% if camara.activa %}
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          EN VIVO
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="camara-info">
+        <div class="camara-top-row">
+          <h2 class="camara-nombre">{{ camara.nombre }}</h2>
+          <span class="camara-status {% if camara.activa %}status-activa{% else %}status-inactiva{% endif %}">
+            {{ "Activa" if camara.activa else "Inactiva" }}
+          </span>
+        </div>
+
+        <ul class="camara-details">
+          <li><span class="detail-label">Edificio:</span> <span class="detail-value">{{ camara.edificio }}</span></li>
+          <li><span class="detail-label">Piso:</span> <span class="detail-value">{{ camara.piso }}</span></li>
+          <li><span class="detail-label">Capacidad:</span> <span class="detail-value">{{ camara.capacidad }} estudiantes</span></li>
+        </ul>
+      </div>
+    </a>
+    {% else %}
+    <div class="camaras-empty">
+      <p>No hay cámaras registradas.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     Modal — Agregar Camara
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalCamara">
+  <div class="modal">
+
+    <div class="modal-header">
+      <h2>Agregar Cámara</h2>
+      <button class="modal-close" id="modalCamaraClose">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Aula -->
+      <div class="form-group">
+        <label>Aula</label>
+        <select id="camara-aula" style="padding:10px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;outline:none;">
+          <option value="" disabled selected>Seleccionar aula</option>
+          {% for aula in aulas %}
+          <option value="{{ aula.id }}">{{ aula.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Estado -->
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="camara-estado" style="padding:10px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;outline:none;">
+          <option value="activa">Activa</option>
+          <option value="inactiva">Inactiva</option>
+          <option value="mantenimiento">Mantenimiento</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" id="btnCamaraCancelar">Cancelar</button>
+      <button class="btn-confirmar" id="btnCamaraConfirmar">Agregar</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST NOTIFICACIÓN -->
+<div id="toastCamara" class="toast-camara">
+  <div class="toast-content">
+    <span class="toast-icon">✔</span>
+    <div class="toast-text">
+      <strong>Cámara agregada</strong>
+      <p id="toastMensaje">Se guardó correctamente</p>
+    </div>
+    <button class="toast-close" id="toastClose">&times;</button>
+  </div>
+</div>
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/camaras.js') }}"></script>
+{% endblock %}
 
 {% endblock %}
+

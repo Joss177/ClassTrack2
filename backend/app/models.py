@@ -72,3 +72,13 @@ class Horario(Base):
     __table_args__ = (
         UniqueConstraint('aula_id', 'dia_semana', 'hora_inicio', name='uq_horario_aula_dia_hora'),
     )
+
+class Camara(Base):
+    __tablename__ = "camaras"
+
+    id               = Column(Integer, primary_key=True, index=True)
+    aula_id          = Column(Integer, ForeignKey("aulas.id"), nullable=False)
+    estado           = Column(String(20), nullable=False, default='activa')
+    ultima_deteccion = Column(TIMESTAMP, nullable=True)
+    created          = Column(TIMESTAMP, server_default=text('now()'))
+    modified         = Column(TIMESTAMP, server_default=text('now()'), onupdate=text('now()'))

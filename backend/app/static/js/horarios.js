@@ -744,3 +744,66 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 });
 
+/* ══════════════════════════════════════════
+   Lock Toggle — Bloquear / Desbloquear tabla
+══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function () {
+  const btnLock = document.getElementById('btnLockTabla');
+  if (!btnLock) return;
+
+  const label  = btnLock.querySelector('.lock-label');
+  let isLocked = true;
+
+  // Exponemos el estado para que el resto del JS pueda consultarlo
+  window.tablaEstaBloqueada = () => isLocked;
+
+  function applyState() {
+    if (isLocked) {
+      btnLock.classList.add('locked');
+      btnLock.setAttribute('aria-pressed', 'true');
+      label.textContent = 'Bloqueado';
+
+      // Botones superiores
+      document.querySelectorAll('#btnAgregarClase, #btnSubirHorario, #btnVaciarTabla')
+        .forEach(b => { b.disabled = true; b.style.opacity = '0.45'; });
+
+      // Cards: deshabilitar drag y cursor
+      document.querySelectorAll('.clase-card:not(.clase-card-cont)').forEach(card => {
+        card.setAttribute('draggable', 'false');
+        card.style.cursor = 'default';
+      });
+
+      // Tabla: overlay visual de bloqueado
+      document.querySelectorAll('.horario-table-container, .aula-section').forEach(el => {
+        el.classList.add('tabla-bloqueada');
+      });
+
+    } else {
+      btnLock.classList.remove('locked');
+      btnLock.setAttribute('aria-pressed', 'false');
+      label.textContent = 'Desbloqueado';
+
+      // Botones superiores
+      document.querySelectorAll('#btnAgregarClase, #btnSubirHorario, #btnVaciarTabla')
+        .forEach(b => { b.disabled = false; b.style.opacity = ''; });
+
+      // Cards: reactivar drag
+      document.querySelectorAll('.clase-card:not(.clase-card-cont)').forEach(card => {
+        card.setAttribute('draggable', 'true');
+        card.style.cursor = 'grab';
+      });
+
+      // Tabla: quitar overlay
+      document.querySelectorAll('.horario-table-container, .aula-section').forEach(el => {
+        el.classList.remove('tabla-bloqueada');
+      });
+    }
+  }
+
+  btnLock.addEventListener('click', () => {
+    isLocked = !isLocked;
+    applyState();
+  });
+
+  applyState();
+});

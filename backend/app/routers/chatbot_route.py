@@ -95,6 +95,20 @@ KEYWORDS = {
         "adios", "adiós", "bye", "gracias", "hasta luego", "nos vemos",
         "chau", "chao", "hasta pronto"
     ],
+    "funcionamiento": [
+        "como funciona", "cómo funciona", "funcionamiento", "flujo de trabajo",
+        "workflow", "proceso", "procedimiento", "que pasos sigue", "cómo se usa",
+        "Como funciona classtrack"
+    ],
+    "que_es": [
+        "que es classtrack", "qué es classtrack", "explicame classtrack",
+        "que es el sistema", "qué es el sistema", "que hace classtrack",
+        "qué hace classtrack"
+    ],
+    "faq": [
+        "preguntas frecuentes", "faq", "dudas comunes", "ayuda general",
+        "manual de usuario", "guia", "guía"
+    ]
 }
 
 QUICK_OPTIONS = [
@@ -379,6 +393,7 @@ GESTION_CRUD = {
             "Escribe: *agregar aula*, *editar aula* o *eliminar aula*."
         ),
     },
+    
 }
 
 # ─── Respuesta de info de entidad desde BDD ───────────────────────────────────
@@ -705,6 +720,37 @@ RESPUESTAS_ESTATICAS = {
         "**asistencia · horarios · reportes · usuarios · gestión · consultar · cámaras · login**\n\n"
         "O escribe **menú** para ver todas las opciones."
     ),
+
+    "funcionamiento": (
+        "⚙️ **¿Cómo funciona ClassTrack?**\n\n"
+        "ClassTrack organiza la gestión escolar en módulos:\n"
+        "1. **Usuarios y Roles** — Control de accesos y permisos.\n"
+        "2. **Docentes, Grupos, Materias y Aulas** — Registro y administración.\n"
+        "3. **Horarios** — Asignación de clases evitando conflictos.\n"
+        "4. **Asistencia** — Registro manual o automático con cámaras.\n"
+        "5. **Reportes** — Exportación a Excel o Google Sheets.\n\n"
+        "💡 *El flujo típico es: registrar entidades → crear horarios → tomar asistencia → generar reportes.*"
+    ),
+
+    "que_es": (
+        "📖 **¿Qué es ClassTrack?**\n\n"
+        "ClassTrack es un sistema de gestión académica diseñado para:\n"
+        "- Administrar docentes, grupos, materias y aulas.\n"
+        "- Crear y visualizar horarios semanales.\n"
+        "- Registrar asistencia manual o automática (con reconocimiento facial).\n"
+        "- Generar reportes exportables a Excel y Google Sheets.\n\n"
+        "👉 Su objetivo es simplificar la administración escolar y centralizar toda la información en un solo lugar."
+    ),
+
+    "faq": (
+        "❓ **Preguntas Frecuentes (FAQ)**\n\n"
+        "Aquí tienes algunas dudas comunes:\n"
+        "- *¿Cómo registro asistencia?* → Usa el módulo de Asistencia.\n"
+        "- *¿Cómo gestiono horarios?* → Desde el menú Horarios.\n"
+        "- *¿Qué pasa si elimino un docente?* → Sus horarios quedan sin docente asignado.\n"
+        "- *¿Puedo exportar reportes?* → Sí, en Excel o Google Sheets.\n\n"
+        "💡 *Escribe tu duda directamente y el asistente te guiará paso a paso.*"
+    )
 }
 
 # ─── Función principal ────────────────────────────────────────────────────────
@@ -795,3 +841,4 @@ async def send_message(body: ChatRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="El mensaje no puede estar vacío")
     respuesta = responder(body.message, db)
     return {"response": respuesta, "role": "assistant"}
+

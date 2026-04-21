@@ -18,6 +18,18 @@
         <button class="btn-agregar"    id="btnAgregarClase">+ Agregar Clase</button>
         <input type="file" id="inputSubirHorario" accept=".pdf" hidden>
         <button class="btn-vaciar" id="btnVaciarTabla">- Vaciar Tabla</button>
+
+        <!-- Toggle Candado -->
+        <button class="btn-lock locked" id="btnLockTabla" title="Bloquear / Desbloquear tabla" aria-pressed="true">
+          <svg class="lock-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path class="lock-shackle" d="M5 7V5a3 3 0 0 1 6 0v2"/>
+            <rect class="lock-body" x="3" y="7" width="10" height="7" rx="2"/>
+            <circle class="lock-keyhole-circle" cx="8" cy="10.4" r="1.2"/>
+            <rect   class="lock-keyhole-rect"   x="7.3" y="10.4" width="1.4" height="2.1" rx="0.5"/>
+          </svg>
+          <span class="lock-label">Bloqueado</span>
+        </button>
+
       </div>
     </div>
 

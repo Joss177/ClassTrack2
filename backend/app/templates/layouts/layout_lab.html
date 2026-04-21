@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ClassTrack</title>
+    <link rel="stylesheet" href="/static/css/layout.css">
+    <link rel="stylesheet" href="/static/css/home.css">
+    <link rel="stylesheet" href="/static/css/gestion.css">
+    <link rel="stylesheet" href="/static/css/configuracion.css">
+    <link rel="stylesheet" href="/static/css/horarios.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button id="toggleSidebar" class="toggle-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <span>ClassTrack</span>
+                </div>
+                <div class="theme-toggle-wrapper">
+                    <label class="toggle-switch" title="Modo oscuro">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="toggle-track">
+                            <span class="toggle-thumb"></span>
+                        </span>
+                    </label>
+                    <i class="fa-solid fa-sun theme-icon" id="themeIcon"></i>
+                </div>
+            </div>
+
+            <ul class="menu">
+                <li class="{{ 'active' if seccion == 'home' }}">
+                    <a href="/lab/home">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li class="{{ 'active' if seccion == 'horarios' }}">
+                    <a href="/lab/horarios">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Horarios</span>
+                    </a>
+                </li>
+                <li class="{{ 'active' if seccion == 'camaras' }}">
+                    <a href="/lab/camaras">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>Cámaras</span>
+                    </a>
+                </li>
+                <li class="{{ 'active' if seccion == 'configuracion' }}">
+                    <a href="/lab/configuracion">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Configuración</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="logout" id="logoutBtn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Salir</span>
+            </div>
+        </aside>
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Botón chatbot -->
+        <button class="chatbot-btn" id="chatbotBtn">
+            <img src="/static/img/IconoChat.png" alt="Asistente virtual">
+        </button>
+
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <p class="chat-name">Asistente ClassTrack</p>
+                        <p class="chat-status" id="chatStatus">En línea</p>
+                    </div>
+                </div>
+                <button class="chat-close" id="chatClose">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-msg bot">
+                    <span>¡Hola! Soy el Asistente de ClassTrack 👋<br>¿En qué puedo ayudarte hoy? Elige una opción o escribe tu pregunta directamente:</span>
+                </div>
+                <div class="quick-options" id="quickOptions"></div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator" style="display:none;">
+                <span></span><span></span><span></span>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Escribe un mensaje..." autocomplete="off">
+                <button id="chatSend">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/siderbar.js"></script>
+    <script src="/static/js/configuracion.js"></script>
+    <script src="/static/js/horarios.js"></script>
+    <script src="/static/js/home.js"></script>
+    <script src="/static/js/camaras.js"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

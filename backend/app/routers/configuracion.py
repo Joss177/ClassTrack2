@@ -7,7 +7,7 @@ import jwt
 import os
 
 from ..database import get_db
-from ..models import User
+from ..models import User, Group
 
 router = APIRouter()
 
@@ -58,7 +58,6 @@ def actualizar_info(
 ):
     user = get_usuario_desde_request(request, db)
 
-    # Verificar que el correo no esté en uso por otro usuario
     existente = db.query(User).filter(
         User.correo == data.correo,
         User.id != user.id

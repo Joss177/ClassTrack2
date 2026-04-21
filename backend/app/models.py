@@ -15,6 +15,14 @@ class User(Base):
     token           = Column(String(255), nullable=True)
     token_expira    = Column(String(50), nullable=True)
 
+class Group(Base):
+    __tablename__ = "groups"
+
+    id       = Column(Integer, primary_key=True, index=True)
+    name     = Column(String(100), nullable=False)
+    created  = Column(TIMESTAMP, server_default=text('now()'))
+    modified = Column(TIMESTAMP, server_default=text('now()'))
+
 class Materia(Base):
     __tablename__ = "materias"
 

@@ -1,28 +1,35 @@
 document.addEventListener("DOMContentLoaded", () => {
     const usuario = Session.usuario();
 
-    // ─── Cargar datos del usuario ─────────────────────────────────────────
+    // ─── Cargar datos del usuario (solo lectura) ──────────────────────────
     if (usuario) {
         document.getElementById("configNombre").value = usuario.nombre || "";
         document.getElementById("configCorreo").value = usuario.correo || "";
-
-        const tema = usuario.tema || "claro";
-        document.querySelectorAll("input[name='tema']").forEach(radio => {
-            radio.checked = radio.value === tema;
-        });
     }
 
-    // ─── Cambiar tema ─────────────────────────────────────────────────────
-    document.querySelectorAll("input[name='tema']").forEach(radio => {
-        radio.addEventListener("change", () => {
-            console.log("Tema seleccionado:", radio.value);
-        });
+    // ─── Modal Cambiar Información ────────────────────────────────────────
+    const modalInfo      = document.getElementById("modalInfo");
+    const modalInfoClose = document.getElementById("modalInfoClose");
+    const btnCambiarInfo = document.getElementById("btnCambiarInfo");
+
+    btnCambiarInfo?.addEventListener("click", () => {
+        document.getElementById("modalNombre").value = document.getElementById("configNombre").value;
+        document.getElementById("modalCorreo").value = document.getElementById("configCorreo").value;
+        modalInfo.classList.add("active");
     });
 
-    // ─── Cambiar Información ──────────────────────────────────────────────
-    document.getElementById("btnCambiarInfo")?.addEventListener("click", async () => {
-        const nombre = document.getElementById("configNombre").value.trim();
-        const correo = document.getElementById("configCorreo").value.trim();
+    modalInfoClose?.addEventListener("click", () => {
+        modalInfo.classList.remove("active");
+    });
+
+    modalInfo?.addEventListener("click", (e) => {
+        if (e.target === modalInfo) modalInfo.classList.remove("active");
+    });
+
+    // ─── Confirmar cambio de información ─────────────────────────────────
+    document.getElementById("btnConfirmarInfo")?.addEventListener("click", async () => {
+        const nombre = document.getElementById("modalNombre").value.trim();
+        const correo = document.getElementById("modalCorreo").value.trim();
 
         if (!nombre || !correo) { alert("Completa todos los campos"); return; }
 
@@ -37,6 +44,21 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (res.ok) {
+                const data = await res.json();
+
+                // Actualizar campos visibles bloqueados
+                document.getElementById("configNombre").value = data.usuario.nombre;
+                document.getElementById("configCorreo").value = data.usuario.correo;
+
+                // Actualizar sesión
+                const usuarioActual = Session.usuario();
+                Session.save(Session.token(), {
+                    ...usuarioActual,
+                    nombre: data.usuario.nombre,
+                    correo: data.usuario.correo,
+                });
+
+                modalInfo.classList.remove("active");
                 alert("Información actualizada correctamente");
             } else {
                 const err = await res.json();
@@ -66,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target === modalPassword) modalPassword.classList.remove("active");
     });
 
-    // ─── Toggle mostrar/ocultar contraseña ────────────────────────────────
+    // ─── Toggle mostrar/ocultar contraseña ───────────────────────────────
     function togglePassword(inputId, iconId) {
         const input = document.getElementById(inputId);
         const icon  = document.getElementById(iconId);
@@ -82,14 +104,14 @@ document.addEventListener("DOMContentLoaded", () => {
     togglePassword("nuevaPassword",     "toggleNueva");
     togglePassword("confirmarPassword", "toggleConfirmar");
 
-    // ─── Confirmar cambio de contraseña ───────────────────────────────────
+    // ─── Confirmar cambio de contraseña ──────────────────────────────────
     btnConfirmarPassword?.addEventListener("click", async () => {
         const nueva     = document.getElementById("nuevaPassword").value;
         const confirmar = document.getElementById("confirmarPassword").value;
 
-        if (!nueva)                  { alert("Ingresa la nueva contraseña"); return; }
-        if (nueva !== confirmar)     { alert("Las contraseñas no coinciden"); return; }
-        if (nueva.length < 6)        { alert("La contraseña debe tener al menos 6 caracteres"); return; }
+        if (!nueva)              { alert("Ingresa la nueva contraseña"); return; }
+        if (nueva !== confirmar) { alert("Las contraseñas no coinciden"); return; }
+        if (nueva.length < 6)   { alert("La contraseña debe tener al menos 6 caracteres"); return; }
 
         try {
             const res = await fetch("/api/me/password", {
@@ -103,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (res.ok) {
                 modalPassword.classList.remove("active");
-                document.getElementById("nuevaPassword").value    = "";
+                document.getElementById("nuevaPassword").value     = "";
                 document.getElementById("confirmarPassword").value = "";
                 alert("Contraseña actualizada correctamente");
             } else {
